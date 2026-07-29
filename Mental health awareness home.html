@@ -1,0 +1,1064 @@
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   Mental Health Awareness
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&amp;display=swap" rel="stylesheet"/>
+  <style>
+   :root {
+      --primary-color: #6b73ff;
+      --secondary-color: #9b59b6;
+      --calm-blue: #e3f2fd;
+      --gentle-green: #e8f5e8;
+      --warm-orange: #fff3e0;
+    }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: var(--calm-blue);
+    }
+    .fade-in {
+      animation: fadeIn 0.6s ease-in;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .hover-lift {
+      transition: transform 0.3s ease;
+    }
+    .hover-lift:hover {
+      transform: translateY(-5px);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    /* Scrollbar for chat */
+    .chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    .chat-messages::-webkit-scrollbar-thumb {
+      background-color: var(--primary-color);
+      border-radius: 3px;
+    }
+  </style>
+ </head>
+ <body class="min-h-screen flex flex-col">
+  <!-- Navigation -->
+  <nav class="bg-white shadow sticky top-0 z-50">
+   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16 items-center">
+     <a class="text-2xl font-bold text-indigo-600 hover:text-indigo-800" href="#home">
+      MindCare
+     </a>
+     <div class="hidden md:flex space-x-8 font-semibold text-gray-700">
+      <a class="hover:text-indigo-600 transition" href="#home">
+       Home
+      </a>
+      <a class="hover:text-indigo-600 transition" href="#about">
+       About Mental Health
+      </a>
+      <a class="hover:text-indigo-600 transition" href="#assessment">
+       Self-Assessment
+      </a>
+      <a class="hover:text-indigo-600 transition" href="#resources">
+       Resources
+      </a>
+      <a class="hover:text-indigo-600 transition" href="#community">
+       Community
+      </a>
+      <a class="hover:text-indigo-600 transition" href="#get-help">
+       Get Help
+      </a>
+      <a class="hover:text-indigo-600 transition" href="#crisis">
+       Crisis Support
+      </a>
+     </div>
+	 
+     <div class="md:hidden">
+      <button aria-label="Toggle menu" class="text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600" id="mobile-menu-button">
+       <i class="fas fa-bars fa-lg">
+       </i>
+      </button>
+     </div>
+    </div>
+   </div>
+   <div class="hidden md:hidden bg-white shadow-md" id="mobile-menu">
+    <a class="block px-4 py-2 border-b border-gray-200 hover:bg-indigo-50" href="#home">
+     Home
+    </a>
+    <a class="block px-4 py-2 border-b border-gray-200 hover:bg-indigo-50" href="#about">
+     About Mental Health
+    </a>
+    <a class="block px-4 py-2 border-b border-gray-200 hover:bg-indigo-50" href="#assessment">
+     Self-Assessment
+    </a>
+    <a class="block px-4 py-2 border-b border-gray-200 hover:bg-indigo-50" href="#resources">
+     Resources
+    </a>
+    <a class="block px-4 py-2 border-b border-gray-200 hover:bg-indigo-50" href="#community">
+     Community
+    </a>
+    <a class="block px-4 py-2 border-b border-gray-200 hover:bg-indigo-50" href="#get-help">
+     Get Help
+    </a>
+    <a class="block px-4 py-2 hover:bg-indigo-50" href="#crisis">
+     Crisis Support
+    </a>
+   </div>
+  </nav>
+  
+  <div style="
+display:flex;
+justify-content:center;
+gap:12px;
+padding:12px;
+background:#0b3d4f;
+border-bottom:2px solid #00d9ff;
+box-shadow:0 0 12px #00d9ff;
+flex-wrap:wrap;
+">
+
+<button onclick="window.open('Mental health awareness home.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Home</button>
+
+<button onclick="window.open('mind_index.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">mind index</button>
+
+<button onclick="window.open('MindEase_Gini_fixed.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">MindEase Gini</button>
+
+<button onclick="window.open('stress-thermometer.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Stress Thermometer</button>
+
+<button onclick="window.open('thought-reframe.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Thought Reframe</button>
+
+<button onclick="window.open('micro-break-reminder.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Micro Break</button>
+
+<button onclick="window.open('game_index.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Relaxation Game</button>
+
+   
+</div>
+  <main class="flex-grow">
+   <!-- Hero Section -->
+   <section class="relative bg-gradient-to-r from-indigo-400 to-purple-600 text-white py-20 px-6 sm:px-12 lg:px-20" id="home">
+    <div class="max-w-7xl mx-auto flex flex-col-reverse lg:flex-row items-center gap-12">
+     <div class="lg:w-1/2 text-center lg:text-left fade-in">
+      <h1 class="text-4xl sm:text-5xl font-extrabold leading-tight mb-4">
+       Your Mental Health Matters
+      </h1>
+      <p class="text-lg sm:text-xl mb-8 max-w-lg">
+       Empower yourself with knowledge, tools, and community support to nurture your mental well-being.
+      </p>
+      <a class="inline-block bg-white text-indigo-700 font-semibold px-8 py-3 rounded-lg shadow hover:bg-indigo-50 transition" href="#assessment">
+       Take a Self-Assessment
+      </a>
+     </div>
+     <div class="lg:w-1/2">
+      <img alt="A calm person meditating peacefully in a serene natural environment with soft sunlight filtering through trees" class="rounded-xl shadow-lg mx-auto" height="400" loading="lazy" src="https://storage.googleapis.com/a1aa/image/0c7384e2-0a73-4e67-dce7-14b2e297e236.jpg" width="600"/>
+     </div>
+    </div>
+   </section>
+   <!-- Statistics Section -->
+   <section class="bg-white py-12 px-6 sm:px-12 lg:px-20">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+     <div class="glass-card p-8 hover-lift shadow-md">
+      <i class="fas fa-brain fa-3x text-indigo-600 mb-4">
+      </i>
+      <h3 class="text-3xl font-bold text-indigo-700">
+       1 in 5
+      </h3>
+      <p class="text-gray-700 mt-2">
+       Adults experience mental illness each year
+      </p>
+     </div>
+     <div class="glass-card p-8 hover-lift shadow-md">
+      <i class="fas fa-hands-helping fa-3x text-indigo-600 mb-4">
+      </i>
+      <h3 class="text-3xl font-bold text-indigo-700">
+       75%
+      </h3>
+      <p class="text-gray-700 mt-2">
+       Of people with mental illness receive no treatment
+      </p>
+     </div>
+     <div class="glass-card p-8 hover-lift shadow-md">
+      <i class="fas fa-heart fa-3x text-indigo-600 mb-4">
+      </i>
+      <h3 class="text-3xl font-bold text-indigo-700">
+       100%
+      </h3>
+      <p class="text-gray-700 mt-2">
+       Recovery is possible with the right support
+      </p>
+     </div>
+    </div>
+   </section>
+   <!-- About Mental Health -->
+   <section class="py-16 px-6 sm:px-12 lg:px-20 bg-calm-blue" id="about">
+    <div class="max-w-7xl mx-auto">
+     <h2 class="text-4xl font-extrabold text-indigo-700 mb-8 text-center">
+      About Mental Health
+     </h2>
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div>
+       <p class="text-gray-800 text-lg leading-relaxed mb-6">
+        Mental health includes our emotional, psychological, and social well-being. It affects how we think, feel, and act. It also helps determine how we handle stress, relate to others, and make choices.
+       </p>
+       <p class="text-gray-800 text-lg leading-relaxed mb-6">
+        Mental health is important at every stage of life, from childhood through adulthood. Understanding mental health and recognizing the signs of mental illness can help you seek support early.
+       </p>
+       <p class="text-gray-800 text-lg leading-relaxed">
+        Common mental health disorders include depression, anxiety, bipolar disorder, and schizophrenia. With proper care, many people recover or manage their conditions effectively.
+       </p>
+      </div>
+      <div>
+       <img alt="An infographic showing mental health concepts and statistics with colorful charts and icons" class="rounded-xl shadow-lg mx-auto" height="400" loading="lazy" src="https://storage.googleapis.com/a1aa/image/af322079-0649-4e8a-9e66-14fc0395ec7a.jpg" width="600"/>
+      </div>
+     </div>
+    </div>
+   </section>
+   <!-- Self-Assessment Tool -->
+   <section class="py-16 px-6 sm:px-12 lg:px-20 bg-white" id="assessment">
+    <div class="max-w-4xl mx-auto">
+     <h2 class="text-4xl font-extrabold text-indigo-700 mb-8 text-center">
+      Self-Assessment Tool
+     </h2>
+     <div class="assessment-container glass-card p-8 shadow-lg fade-in">
+      <div class="w-full bg-gray-200 rounded-full h-4 mb-6 overflow-hidden">
+       <div class="h-4 bg-indigo-600 rounded-full transition-all duration-300" id="progressBar" style="width: 0%">
+       </div>
+      </div>
+      <div class="question-card">
+       <h3 class="text-xl font-semibold text-gray-800 mb-6" id="questionText">
+       </h3>
+       <div class="grid grid-cols-1 gap-4" id="optionsContainer">
+       </div>
+      </div>
+      <div class="mt-6 flex justify-between">
+       <button class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 disabled:opacity-50" disabled="" id="prevBtn">
+        Previous
+       </button>
+       <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50" disabled="" id="nextBtn">
+        Next
+       </button>
+      </div>
+      <div class="mt-8 hidden p-6 bg-indigo-50 rounded-lg text-indigo-900" id="resultContainer">
+      </div>
+     </div>
+    </div>
+   </section>
+   <!-- Resources Section -->
+   <section class="py-16 px-6 sm:px-12 lg:px-20 bg-calm-blue" id="resources">
+    <div class="max-w-7xl mx-auto">
+     <h2 class="text-4xl font-extrabold text-indigo-700 mb-8 text-center">
+      Resources
+     </h2>
+     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <article class="glass-card p-6 shadow hover-lift">
+       <img alt="Cover image for an article titled Understanding Depression showing a thoughtful person looking out a window" class="rounded-lg mb-4 w-full object-cover h-40" height="200" loading="lazy" src="https://storage.googleapis.com/a1aa/image/d4012f59-b1b4-4ebf-2fbe-8cc4849dfb53.jpg" width="400"/>
+       <h3 class="text-xl font-semibold mb-2 text-indigo-700">
+        Understanding Depression
+       </h3>
+       <p class="text-gray-700 mb-4">
+        An in-depth article explaining symptoms, causes, and treatments of depression.
+       </p>
+       <a class="text-indigo-600 font-semibold hover:underline inline-flex items-center" href="/resources/depression-guide">
+        Read More
+        <i class="fas fa-arrow-right ml-2">
+        </i>
+       </a>
+      </article>
+      <article class="glass-card p-6 shadow hover-lift">
+       <img alt="Image representing National Suicide Prevention Lifeline with a phone icon and helpline number 988" class="rounded-lg mb-4 w-full object-cover h-40" height="200" loading="lazy" src="https://storage.googleapis.com/a1aa/image/1a9193a0-4ce9-49a2-d522-2436cf1ed514.jpg" width="400"/>
+       <h3 class="text-xl font-semibold mb-2 text-indigo-700">
+        National Suicide Prevention Lifeline
+       </h3>
+       <p class="text-gray-700 mb-4">
+        Call 988 for immediate crisis support and confidential help 24/7.
+       </p>
+       <a class="text-indigo-600 font-semibold hover:underline inline-flex items-center" href="tel:988">
+        Call Now
+        <i class="fas fa-phone ml-2">
+        </i>
+       </a>
+      </article>
+      <article class="glass-card p-6 shadow hover-lift">
+       <img alt="Thumbnail image for a mindfulness meditation video showing a person meditating on a mountain top at sunrise" class="rounded-lg mb-4 w-full object-cover h-40" height="200" loading="lazy" src="https://storage.googleapis.com/a1aa/image/49c5aab3-9ec0-4eea-f8b8-5b6e02e73799.jpg" width="400"/>
+       <h3 class="text-xl font-semibold mb-2 text-indigo-700">
+        Mindfulness Meditation
+       </h3>
+       <p class="text-gray-700 mb-4">
+        A guided video to help you practice mindfulness and reduce stress.
+       </p>
+       <a class="text-indigo-600 font-semibold hover:underline inline-flex items-center" href="https://www.youtube.com/watch?v=inpok4MKVLM" rel="noopener" target="_blank">
+        Watch Video
+        <i class="fas fa-play ml-2">
+        </i>
+       </a>
+      </article>
+     </div>
+    </div>
+   </section>
+   <!-- Community Section -->
+   <section class="py-16 px-6 sm:px-12 lg:px-20 bg-white" id="community">
+    <div class="max-w-7xl mx-auto">
+     <h2 class="text-4xl font-extrabold text-indigo-700 mb-8 text-center">
+      Community Support Chat
+     </h2>
+     <div class="max-w-4xl mx-auto flex flex-col md:flex-row gap-6">
+      <div class="flex-1 flex flex-col border border-indigo-200 rounded-lg shadow glass-card p-4">
+       <div class="chat-messages flex-1 overflow-y-auto p-4 space-y-4 bg-indigo-50 rounded-lg mb-4" id="chatMessages" style="min-height: 300px;">
+        <!-- Messages will appear here -->
+       </div>
+       <form class="flex gap-2" id="chatForm">
+        <input autocomplete="off" class="flex-grow border border-indigo-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600" id="chatInput" placeholder="Type your message..." required="" type="text"/>
+        <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition" type="submit">
+         Send
+        </button>
+       </form>
+      </div>
+      <div class="md:w-80 glass-card p-6 rounded-lg shadow text-indigo-700">
+       <h3 class="text-xl font-semibold mb-4">
+        Community Guidelines
+       </h3>
+       <ul class="list-disc list-inside space-y-2 text-gray-700 text-sm">
+        <li>
+         Be respectful and kind to others.
+        </li>
+        <li>
+         Maintain confidentiality and privacy.
+        </li>
+        <li>
+         No spam or advertising.
+        </li>
+        <li>
+         Seek professional help if needed.
+        </li>
+        <li>
+         Report any harmful behavior to moderators.
+        </li>
+       </ul>
+      </div>
+     </div>
+    </div>
+   </section>
+   <!-- Get Help Section -->
+   <section class="py-16 px-6 sm:px-12 lg:px-20 bg-calm-blue" id="get-help">
+    <div class="max-w-7xl mx-auto">
+     <h2 class="text-4xl font-extrabold text-indigo-700 mb-8 text-center">
+      Get Professional Help
+     </h2>
+     <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div class="glass-card p-6 rounded-lg shadow hover-lift bg-white">
+       <h3 class="text-2xl font-semibold mb-4 text-indigo-700">
+        Find a Therapist Near You
+       </h3>
+       <form class="space-y-4" id="locatorForm">
+        <div>
+         <label class="block text-gray-700 font-semibold mb-1" for="locationInput">
+          Enter your city or ZIP code
+         </label>
+         <input class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600" id="locationInput" placeholder="e.g., New York, 10001" required="" type="text"/>
+        </div>
+        <button class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition w-full" type="submit">
+         Search
+        </button>
+       </form>
+       <div class="mt-6 text-gray-700" id="locatorResults">
+       </div>
+      </div>
+      <div class="glass-card p-6 rounded-lg shadow bg-white">
+       <h3 class="text-2xl font-semibold mb-4 text-indigo-700">
+        Helpline Numbers
+       </h3>
+       <ul class="space-y-4 text-gray-800 text-lg">
+        <li>
+         <i class="fas fa-phone-alt text-indigo-600 mr-3">
+         </i>
+         National Suicide Prevention Lifeline:
+         <a class="text-indigo-700 font-semibold hover:underline" href="tel:988">
+          988
+         </a>
+        </li>
+        <li>
+         <i class="fas fa-phone-alt text-indigo-600 mr-3">
+         </i>
+         Mental Health Support:
+         <a class="text-indigo-700 font-semibold hover:underline" href="tel:18002738255">
+          1-800-273-8255
+         </a>
+        </li>
+        <li>
+         <i class="fas fa-phone-alt text-indigo-600 mr-3">
+         </i>
+         Crisis Text Line:
+         <a class="text-indigo-700 font-semibold hover:underline" href="sms:741741">
+          Text HOME to 741741
+         </a>
+        </li>
+        <li>
+         <i class="fas fa-phone-alt text-indigo-600 mr-3">
+         </i>
+         Substance Abuse Helpline:
+         <a class="text-indigo-700 font-semibold hover:underline" href="tel:18006624357">
+          1-800-662-4357
+         </a>
+        </li>
+       </ul>
+      </div>
+     </div>
+    </div>
+   </section>
+   <!-- Crisis Support Section -->
+   <section class="py-16 px-6 sm:px-12 lg:px-20 bg-white" id="crisis">
+    <div class="max-w-7xl mx-auto text-center">
+     <h2 class="text-4xl font-extrabold text-indigo-700 mb-8">
+      Crisis Support &amp; Emergency Resources
+     </h2>
+     <div class="max-w-3xl mx-auto space-y-6 text-gray-800 text-lg">
+      <p>
+       If you or someone you know is in immediate danger or experiencing a mental health crisis, please call emergency services or one of the helplines below immediately.
+      </p>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg font-semibold text-xl">
+       Emergency Number:
+       <a class="underline hover:text-red-900" href="tel:911">
+        911
+       </a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-8">
+       <div class="glass-card p-6 rounded-lg shadow bg-red-50 border border-red-200">
+        <h3 class="text-2xl font-semibold mb-4 text-red-700">
+         Suicide Prevention Lifeline
+        </h3>
+        <p class="mb-4">
+         Call or text for confidential support 24/7.
+        </p>
+        <a class="text-red-700 font-bold text-xl hover:underline" href="tel:988">
+         Call 988
+        </a>
+        <br/>
+        <a class="text-red-700 font-bold text-xl hover:underline" href="sms:988">
+         Text 988
+        </a>
+       </div>
+       <div class="glass-card p-6 rounded-lg shadow bg-red-50 border border-red-200">
+        <h3 class="text-2xl font-semibold mb-4 text-red-700">
+         Crisis Text Line
+        </h3>
+        <p class="mb-4">
+         Text HOME to connect with a trained crisis counselor.
+        </p>
+        <a class="text-red-700 font-bold text-xl hover:underline" href="sms:741741">
+         Text HOME to 741741
+        </a>
+       </div>
+      </div>
+      <img alt="Illustration showing crisis support helpline icons and emergency care symbols with a comforting red theme" class="mx-auto mt-12 rounded-lg shadow-lg" height="300" loading="lazy" src="https://storage.googleapis.com/a1aa/image/068f491c-975b-41da-49a4-873101074069.jpg" width="600"/>
+     </div>
+    </div>
+   </section>
+   <!-- Mood Tracker Section -->
+   <section class="py-16 px-6 sm:px-12 lg:px-20 bg-calm-blue" id="mood-tracker">
+    <div class="max-w-4xl mx-auto">
+     <h2 class="text-4xl font-extrabold text-indigo-700 mb-8 text-center">
+      Mood Tracker
+     </h2>
+     <div class="glass-card p-8 shadow-lg fade-in">
+      <form class="space-y-6" id="moodForm">
+       <div>
+        <label class="block text-gray-700 font-semibold mb-1" for="moodDate">
+         Date
+        </label>
+        <input class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600" id="moodDate" required="" type="date"/>
+       </div>
+       <div>
+        <label class="block text-gray-700 font-semibold mb-1">
+         Mood
+        </label>
+        <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600" id="moodSelect" required="">
+         <option disabled="" selected="" value="">
+          Select your mood
+         </option>
+         <option value="5">
+          Very Happy
+         </option>
+         <option value="4">
+          Happy
+         </option>
+         <option value="3">
+          Neutral
+         </option>
+         <option value="2">
+          Sad
+         </option>
+         <option value="1">
+          Very Sad
+         </option>
+        </select>
+       </div>
+       <div>
+        <label class="block text-gray-700 font-semibold mb-1" for="moodNotes">
+         Notes (optional)
+        </label>
+        <textarea class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600" id="moodNotes" placeholder="Write about your feelings or events today..." rows="3"></textarea>
+       </div>
+       <button class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition w-full" type="submit">
+        Add Mood Entry
+       </button>
+      </form>
+      <div class="mt-10">
+       <canvas aria-label="Mood trend chart" id="moodChart" role="img">
+       </canvas>
+      </div>
+     </div>
+    </div>
+   </section>
+   <!-- Breathing Exercise Section -->
+   <section class="py-16 px-6 sm:px-12 lg:px-20 bg-white" id="breathing-exercise">
+    <div class="max-w-4xl mx-auto text-center">
+     <h2 class="text-4xl font-extrabold text-indigo-700 mb-8">
+      Guided Breathing Exercise
+     </h2>
+     <div class="glass-card p-8 shadow-lg flex flex-col items-center space-y-8">
+      <div class="w-48 h-48 rounded-full bg-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-2xl select-none" id="breathingCircle">
+       Breathe
+      </div>
+      <div class="text-indigo-700 text-xl font-semibold" id="breathingInstructions">
+       Press Start to begin
+      </div>
+      <div class="flex space-x-4">
+       <button class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition" id="startBreathingBtn">
+        Start
+       </button>
+       <button class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition" disabled="" id="stopBreathingBtn">
+        Stop
+       </button>
+      </div>
+     </div>
+    </div>
+   </section>
+  </main>
+  <!-- Footer -->
+  <footer class="bg-indigo-700 text-indigo-100 py-8 px-6 sm:px-12 lg:px-20">
+   <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+    <p class="text-sm">
+     © 2024 MindCare. All rights reserved.
+    </p>
+    <div class="space-x-6">
+     <a aria-label="Facebook" class="hover:text-white" href="#">
+      <i class="fab fa-facebook fa-lg">
+      </i>
+     </a>
+     <a aria-label="Twitter" class="hover:text-white" href="#">
+      <i class="fab fa-twitter fa-lg">
+      </i>
+     </a>
+     <a aria-label="Instagram" class="hover:text-white" href="#">
+      <i class="fab fa-instagram fa-lg">
+      </i>
+     </a>
+     <a aria-label="LinkedIn" class="hover:text-white" href="#">
+      <i class="fab fa-linkedin fa-lg">
+      </i>
+     </a>
+    </div>
+   </div>
+  </footer>
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js">
+  </script>
+  <script>
+   // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // Self-Assessment Tool Data and Logic
+    const questions = [
+      {
+        question: "Over the last 2 weeks, how often have you felt little interest or pleasure in doing things?",
+        options: [
+          { text: "Not at all", value: 0 },
+          { text: "Several days", value: 1 },
+          { text: "More than half the days", value: 2 },
+          { text: "Nearly every day", value: 3 }
+        ]
+      },
+      {
+        question: "Over the last 2 weeks, how often have you felt down, depressed, or hopeless?",
+        options: [
+          { text: "Not at all", value: 0 },
+          { text: "Several days", value: 1 },
+          { text: "More than half the days", value: 2 },
+          { text: "Nearly every day", value: 3 }
+        ]
+      },
+      {
+        question: "Over the last 2 weeks, how often have you had trouble falling or staying asleep, or sleeping too much?",
+        options: [
+          { text: "Not at all", value: 0 },
+          { text: "Several days", value: 1 },
+          { text: "More than half the days", value: 2 },
+          { text: "Nearly every day", value: 3 }
+        ]
+      },
+      {
+        question: "Over the last 2 weeks, how often have you felt tired or had little energy?",
+        options: [
+          { text: "Not at all", value: 0 },
+          { text: "Several days", value: 1 },
+          { text: "More than half the days", value: 2 },
+          { text: "Nearly every day", value: 3 }
+        ]
+      },
+      {
+        question: "Over the last 2 weeks, how often have you had poor appetite or overeating?",
+        options: [
+          { text: "Not at all", value: 0 },
+          { text: "Several days", value: 1 },
+          { text: "More than half the days", value: 2 },
+          { text: "Nearly every day", value: 3 }
+        ]
+      }
+    ];
+
+    const questionText = document.getElementById('questionText');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const progressBar = document.getElementById('progressBar');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const resultContainer = document.getElementById('resultContainer');
+
+    let currentQuestionIndex = 0;
+    const answers = new Array(questions.length).fill(null);
+
+    function renderQuestion() {
+      const current = questions[currentQuestionIndex];
+      questionText.textContent = current.question;
+      optionsContainer.innerHTML = '';
+      current.options.forEach((option, idx) => {
+        const optionId = `option-${idx}`;
+        const optionElem = document.createElement('div');
+        optionElem.className = 'flex items-center space-x-3 cursor-pointer p-3 rounded-lg border border-gray-300 hover:border-indigo-600 transition hover:bg-indigo-50';
+        optionElem.tabIndex = 0;
+        optionElem.setAttribute('role', 'radio');
+        optionElem.setAttribute('aria-checked', answers[currentQuestionIndex] === option.value ? 'true' : 'false');
+        optionElem.setAttribute('aria-labelledby', optionId);
+        optionElem.addEventListener('click', () => {
+          answers[currentQuestionIndex] = option.value;
+          updateOptions();
+          nextBtn.disabled = false;
+        });
+        optionElem.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            optionElem.click();
+          }
+        });
+
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = 'option';
+        radio.id = optionId;
+        radio.value = option.value;
+        radio.checked = answers[currentQuestionIndex] === option.value;
+        radio.className = 'hidden';
+        radio.tabIndex = -1;
+
+        const label = document.createElement('label');
+        label.htmlFor = optionId;
+        label.textContent = option.text;
+        label.className = 'cursor-pointer select-none text-gray-800';
+
+        optionElem.appendChild(radio);
+        optionElem.appendChild(label);
+        optionsContainer.appendChild(optionElem);
+      });
+
+      prevBtn.disabled = currentQuestionIndex === 0;
+      nextBtn.disabled = answers[currentQuestionIndex] === null;
+      progressBar.style.width = `${((currentQuestionIndex) / questions.length) * 100}%`;
+      resultContainer.classList.add('hidden');
+      resultContainer.innerHTML = '';
+    }
+
+    function updateOptions() {
+      const optionDivs = optionsContainer.querySelectorAll('div[role="radio"]');
+      optionDivs.forEach((div, idx) => {
+        const isSelected = answers[currentQuestionIndex] === questions[currentQuestionIndex].options[idx].value;
+        div.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+        div.querySelector('input').checked = isSelected;
+      });
+    }
+
+    prevBtn.addEventListener('click', () => {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        renderQuestion();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    });
+
+    function showResult() {
+      const totalScore = answers.reduce((a, b) => a + b, 0);
+      progressBar.style.width = '100%';
+      questionText.textContent = 'Assessment Complete';
+      optionsContainer.innerHTML = '';
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+
+      let recommendation = '';
+      if (totalScore <= 3) {
+        recommendation = 'Your responses indicate minimal symptoms. Keep maintaining your mental well-being!';
+      } else if (totalScore <= 7) {
+        recommendation = 'You may be experiencing mild symptoms. Consider practicing relaxation techniques and monitoring your mood.';
+      } else if (totalScore <= 11) {
+        recommendation = 'Moderate symptoms detected. It is recommended to consult a mental health professional for guidance.';
+      } else {
+        recommendation = 'Severe symptoms detected. Please seek professional help immediately.';
+      }
+
+      resultContainer.innerHTML = `
+        <p class="text-lg font-semibold mb-4">Your Score: <span class="text-indigo-700">${totalScore}</span></p>
+        <p>${recommendation}</p>
+      `;
+      resultContainer.classList.remove('hidden');
+    }
+
+    renderQuestion();
+
+    // Mood Tracker Logic
+    class MoodTracker {
+      constructor() {
+        this.moods = JSON.parse(localStorage.getItem('moodEntries')) || [];
+        this.chart = null;
+        this.ctx = document.getElementById('moodChart').getContext('2d');
+        this.renderChart();
+      }
+
+      addMood(date, mood, notes) {
+        this.moods.push({ date, mood: Number(mood), notes });
+        this.moods.sort((a, b) => new Date(a.date) - new Date(b.date));
+        localStorage.setItem('moodEntries', JSON.stringify(this.moods));
+        this.renderChart();
+      }
+
+      renderChart() {
+        if (this.chart) {
+          this.chart.destroy();
+        }
+        const labels = this.moods.map(entry => entry.date);
+        const data = this.moods.map(entry => entry.mood);
+        this.chart = new Chart(this.ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{
+              label: 'Mood Score',
+              data,
+              borderColor: 'var(--primary-color)',
+              backgroundColor: 'rgba(107, 115, 255, 0.2)',
+              fill: true,
+              tension: 0.3,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              pointBackgroundColor: 'var(--primary-color)'
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                min: 0,
+                max: 5,
+                ticks: {
+                  stepSize: 1,
+                  callback: function(value) {
+                    switch(value) {
+                      case 1: return 'Very Sad';
+                      case 2: return 'Sad';
+                      case 3: return 'Neutral';
+                      case 4: return 'Happy';
+                      case 5: return 'Very Happy';
+                      default: return value;
+                    }
+                  }
+                }
+              },
+              x: {
+                ticks: {
+                  maxRotation: 45,
+                  minRotation: 45
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                labels: {
+                  color: 'var(--primary-color)'
+                }
+              },
+              title: {
+                display: true,
+                text: 'Mood Trends Over Time',
+                color: 'var(--primary-color)',
+                font: {
+                  size: 18,
+                  weight: 'bold'
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    const moodTracker = new MoodTracker();
+
+    const moodForm = document.getElementById('moodForm');
+    moodForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const date = document.getElementById('moodDate').value;
+      const mood = document.getElementById('moodSelect').value;
+      const notes = document.getElementById('moodNotes').value.trim();
+      if (!date || !mood) return;
+      moodTracker.addMood(date, mood, notes);
+      moodForm.reset();
+    });
+
+    // Breathing Exercise Logic
+    class BreathingExercise {
+      constructor() {
+        this.isActive = false;
+        this.breathCount = 0;
+        this.breathingCircle = document.getElementById('breathingCircle');
+        this.instructions = document.getElementById('breathingInstructions');
+        this.startBtn = document.getElementById('startBreathingBtn');
+        this.stopBtn = document.getElementById('stopBreathingBtn');
+        this.intervalId = null;
+        this.phase = 0; // 0: inhale, 1: hold, 2: exhale, 3: hold
+        this.phases = ['Inhale', 'Hold', 'Exhale', 'Hold'];
+        this.phaseDurations = [4000, 7000, 8000, 7000]; // ms
+        this.startBtn.addEventListener('click', () => this.startExercise());
+        this.stopBtn.addEventListener('click', () => this.stopExercise());
+      }
+
+      startExercise() {
+        if (this.isActive) return;
+        this.isActive = true;
+        this.breathCount = 0;
+        this.phase = 0;
+        this.startBtn.disabled = true;
+        this.stopBtn.disabled = false;
+        this.instructions.textContent = this.phases[this.phase];
+        this.animateBreathing();
+        this.intervalId = setInterval(() => {
+          this.phase = (this.phase + 1) % this.phases.length;
+          this.instructions.textContent = this.phases[this.phase];
+          this.animateBreathing();
+          if (this.phase === 0) this.breathCount++;
+          if (this.breathCount >= 4) {
+            this.stopExercise();
+          }
+        }, this.phaseDurations[this.phase]);
+      }
+
+      animateBreathing() {
+        if (this.phase === 0) {
+          // Inhale - expand circle
+          this.breathingCircle.style.transition = `all ${this.phaseDurations[this.phase]}ms ease-in-out`;
+          this.breathingCircle.style.transform = 'scale(1.3)';
+          this.breathingCircle.textContent = 'Inhale';
+        } else if (this.phase === 1) {
+          // Hold - keep expanded
+          this.breathingCircle.style.transition = `all ${this.phaseDurations[this.phase]}ms ease-in-out`;
+          this.breathingCircle.style.transform = 'scale(1.3)';
+          this.breathingCircle.textContent = 'Hold';
+        } else if (this.phase === 2) {
+          // Exhale - shrink circle
+          this.breathingCircle.style.transition = `all ${this.phaseDurations[this.phase]}ms ease-in-out`;
+          this.breathingCircle.style.transform = 'scale(1)';
+          this.breathingCircle.textContent = 'Exhale';
+        } else if (this.phase === 3) {
+          // Hold - keep small
+          this.breathingCircle.style.transition = `all ${this.phaseDurations[this.phase]}ms ease-in-out`;
+          this.breathingCircle.style.transform = 'scale(1)';
+          this.breathingCircle.textContent = 'Hold';
+        }
+      }
+
+      stopExercise() {
+        if (!this.isActive) return;
+        this.isActive = false;
+        clearInterval(this.intervalId);
+        this.breathingCircle.style.transition = 'all 0.5s ease-in-out';
+        this.breathingCircle.style.transform = 'scale(1)';
+        this.breathingCircle.textContent = 'Breathe';
+        this.instructions.textContent = 'Press Start to begin';
+        this.startBtn.disabled = false;
+        this.stopBtn.disabled = true;
+      }
+    }
+
+    new BreathingExercise();
+
+    // Community Chat (Simulated)
+    const chatMessages = document.getElementById('chatMessages');
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+
+    function addChatMessage(message, sender = 'user') {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+      const bubble = document.createElement('div');
+      bubble.className = `max-w-xs px-4 py-2 rounded-lg shadow ${
+        sender === 'user' ? 'bg-indigo-600 text-white' : 'bg-indigo-100 text-indigo-900'
+      }`;
+      bubble.textContent = message;
+      msgDiv.appendChild(bubble);
+      chatMessages.appendChild(msgDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const message = chatInput.value.trim();
+      if (!message) return;
+      addChatMessage(message, 'user');
+      chatInput.value = '';
+      // Simulate a response after 1.5 seconds
+      setTimeout(() => {
+        const responses = [
+          "Thank you for sharing. You're not alone.",
+          "That sounds tough. Have you tried any relaxation techniques?",
+          "Remember, seeking help is a sign of strength.",
+          "Would you like some resources on coping strategies?",
+          "It's okay to take things one step at a time."
+        ];
+        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        addChatMessage(randomResponse, 'bot');
+      }, 1500);
+    });
+
+    // Get Help Locator (Simulated)
+    const locatorForm = document.getElementById('locatorForm');
+    const locatorResults = document.getElementById('locatorResults');
+
+    locatorForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const location = document.getElementById('locationInput').value.trim();
+      locatorResults.innerHTML = '';
+      if (!location) return;
+      locatorResults.innerHTML = `<p class="text-indigo-700 font-semibold mb-4">Therapists near "${location}":</p>`;
+      // Simulated therapist data
+      const therapists = [
+        {
+          name: "Dr. Sarah Johnson",
+          specialty: "Clinical Psychologist",
+          phone: "555-123-4567",
+          address: "123 Wellness St, " + location
+        },
+        {
+          name: "Mr. David Lee",
+          specialty: "Licensed Counselor",
+          phone: "555-987-6543",
+          address: "456 Healing Ave, " + location
+        },
+        {
+          name: "Ms. Emily Davis",
+          specialty: "Psychiatrist",
+          phone: "555-555-1212",
+          address: "789 Care Blvd, " + location
+        }
+      ];
+      therapists.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'mb-4 p-4 bg-indigo-50 rounded-lg border border-indigo-200';
+        div.innerHTML = `
+          <h4 class="text-indigo-700 font-semibold text-lg">${t.name}</h4>
+          <p class="text-gray-700">${t.specialty}</p>
+          <p class="text-gray-700">${t.address}</p>
+          <p class="text-indigo-600 font-semibold">Phone: <a href="tel:${t.phone}" class="hover:underline">${t.phone}</a></p>
+        `;
+        locatorResults.appendChild(div);
+      });
+    });
+  </script>
+ </body>
+</html>

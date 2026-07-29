@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MindEase Gini</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#050010;
+color:white;
+overflow:hidden;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:-1;
+}
+
+.container{
+display:flex;
+height:100vh;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+}
+
+.chat-container{
+width:420px;
+height:700px;
+border:2px solid #8a2be2;
+border-radius:16px;
+background:#120022;
+box-shadow:0 0 25px #8a2be2;
+display:flex;
+flex-direction:column;
+overflow:hidden;
+}
+
+.header{
+padding:15px;
+text-align:center;
+font-size:22px;
+border-bottom:1px solid #8a2be2;
+}
+
+.mood{
+font-size:14px;
+margin-top:5px;
+color:#cfa9ff;
+}
+
+.chatbox{
+flex:1;
+padding:15px;
+overflow-y:auto;
+display:flex;
+flex-direction:column;
+}
+
+.message{
+padding:10px 14px;
+border-radius:12px;
+margin:6px 0;
+max-width:75%;
+font-size:14px;
+line-height:1.5;
+}
+
+.bot{
+background:#200040;
+border:1px solid #a855ff;
+align-self:flex-start;
+}
+
+.user{
+background:#7a00ff;
+align-self:flex-end;
+}
+
+.typing{
+font-style:italic;
+color:#bbb;
+}
+
+.input-area{
+display:flex;
+border-top:1px solid #8a2be2;
+}
+
+input{
+flex:1;
+padding:12px;
+border:none;
+background:#0f0020;
+color:white;
+outline:none;
+}
+
+button{
+background:#a200ff;
+border:none;
+color:white;
+padding:12px 16px;
+cursor:pointer;
+border-radius:10px;
+margin-left:4px;
+}
+
+button:hover{
+background:#c63bff;
+}
+
+.voice-btn{
+font-size:12px;
+margin-top:6px;
+padding:4px 8px;
+border-radius:6px;
+}
+
+.footer{
+text-align:center;
+padding:8px;
+font-size:13px;
+color:#cfa9ff;
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="container">
+<div class="chat-container">
+
+  <div class="header">
+    MindEase Gini 💜
+    <div class="mood" id="moodMeter">Mood: Calm 🙂</div>
+  </div>
+
+  <div class="chatbox" id="chatbox"></div>
+
+  <div class="input-area">
+    <input id="userInput" placeholder="Share your thoughts..." onkeypress="enterSend(event)">
+    <button onclick="sendMessage()">Send</button>
+    <button onclick="startListening()">🎤</button>
+  </div>
+
+  <div class="footer">MindEase Emotional Wellness Companion</div>
+
+</div>
+</div>
+
+<script>
+
+/* ── PARTICLE BACKGROUND ── */
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+for(let i=0;i<80;i++){
+  particles.push({
+    x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+    r:Math.random()*2, dx:(Math.random()-0.5)*0.5, dy:(Math.random()-0.5)*0.5
+  });
+}
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="#8a2be2";
+  particles.forEach(p=>{
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    p.x+=p.dx; p.y+=p.dy;
+    if(p.x<0||p.x>canvas.width) p.dx*=-1;
+    if(p.y<0||p.y>canvas.height) p.dy*=-1;
+  });
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* ── MEMORY ── */
+let history = JSON.parse(localStorage.getItem("giniChat")) || [];
+const chatbox = document.getElementById("chatbox");
+history.forEach(m => addMessage(m.text, m.type, false));
+
+/* ── VOICE PRELOAD FIX ── */
+// Browsers load voices asynchronously — we cache them early
+let cachedVoices = [];
+function loadVoices(){
+  cachedVoices = speechSynthesis.getVoices();
+}
+loadVoices();
+if(speechSynthesis.onvoiceschanged !== undefined){
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+/* ══════════════════════════════════════
+   KEYWORD → RESPONSE MAP (100+ entries)
+   ══════════════════════════════════════ */
+const keywordResponses = [
+
+  /* ── GREETINGS ── */
+  { keys:["hi","hello","hey","hii","helo"],
+    res:"Hello! 😊 I'm so glad you're here. How are you feeling today? Are you doing okay?" },
+  { keys:["good morning"],
+    res:"Good morning! 🌅 A fresh new day has begun. How did you sleep, and how are you starting your morning?" },
+  { keys:["good afternoon"],
+    res:"Good afternoon! ☀️ How has your day been going so far? Anything on your mind?" },
+  { keys:["good evening"],
+    res:"Good evening! 🌙 I hope your day treated you kindly. How are you feeling right now?" },
+  { keys:["good night","goodnight"],
+    res:"Good night! 🌟 I hope you have a peaceful, restful sleep. Is there anything weighing on your mind before you rest?" },
+  { keys:["bye","goodbye","take care","see you"],
+    res:"Take care of yourself 💜 Remember, I'm always here whenever you need to talk. See you soon!" },
+
+  /* ── ASKING ABOUT GINI ── */
+  { keys:["who are you","what are you","your name","tell me about yourself"],
+    res:"I'm Gini 💜 — your MindEase emotional wellness companion. I'm here to listen, support, and gently guide you through whatever you're feeling. You can share anything with me without judgment." },
+  { keys:["what can you do","how can you help","help me"],
+    res:"I can listen to how you're feeling, offer comfort during stress or sadness, share breathing exercises, give motivation when you're low, and just be here with you. What would you like to talk about?" },
+  { keys:["are you real","are you human","are you a bot","are you ai"],
+    res:"I'm an AI companion 🤖💜 — not human, but I genuinely care about how you feel. I'm designed to listen and support you with warmth and kindness. How are you doing today?" },
+
+  /* ── SADNESS ── */
+  { keys:["sad","i feel sad","feeling sad","i am sad"],
+    res:"I'm really sorry you're feeling sad right now 😔 That feeling is valid and real. Would you like to tell me what's been making you feel this way? I'm here to listen without any judgment." },
+  { keys:["crying","i cried","i want to cry","tears"],
+    res:"It's completely okay to cry 💜 Tears are a healthy release of emotion. You don't have to hold it in. What has been hurting your heart lately?" },
+  { keys:["depressed","depression","hopeless","no hope","nothing matters"],
+    res:"I hear you, and I want you to know that what you're feeling is real and it matters 💜 Depression can feel very heavy and isolating. Have you been able to talk to anyone about this — a friend, family member, or counselor?" },
+  { keys:["lonely","alone","no one cares","nobody understands","no friends"],
+    res:"Feeling lonely is one of the most painful feelings there is 💙 But please know — you are not alone right now. I'm here with you. Would you like to share what's been making you feel this way?" },
+  { keys:["miss","i miss","missing someone"],
+    res:"Missing someone can be deeply painful 💔 Whether it's a person, a place, or a time in your life — that feeling shows how much you care. Who or what are you missing?" },
+
+  /* ── ANXIETY & STRESS ── */
+  { keys:["stressed","stress","too much stress","so stressed"],
+    res:"It sounds like you're carrying a lot right now 😟 Stress can feel overwhelming when it piles up. Can you tell me what's been stressing you out the most? Sometimes just naming it helps." },
+  { keys:["anxious","anxiety","panic","panic attack","nervous","nervousness"],
+    res:"Anxiety can feel really scary and intense 😟 If you're feeling a panic right now, try this: breathe in for 4 counts, hold for 4, breathe out for 6. Repeat 3 times. Are you feeling anxious about something specific?" },
+  { keys:["overthinking","can't stop thinking","my mind won't stop","racing thoughts"],
+    res:"Overthinking can be so exhausting — your mind just won't give you a break 😔 One helpful trick: write down every thought swirling in your head. Getting it out of your mind and onto paper can give you relief. Would that help?" },
+  { keys:["worry","worried","so worried","keep worrying"],
+    res:"Worry has a way of taking over our thoughts 💭 Can I ask — is this worry about something that has happened, or something you're afraid might happen? Understanding that can help us address it." },
+  { keys:["overwhelmed","too much","can't handle","can't cope"],
+    res:"When everything feels like too much, it's okay to pause and just breathe 💜 You don't have to solve everything at once. What's the one thing that feels heaviest right now?" },
+
+  /* ── ANGER ── */
+  { keys:["angry","anger","so angry","i hate","rage","furious","pissed"],
+    res:"It's completely natural to feel angry 😤 Anger often signals that something important to us has been hurt or ignored. What happened that made you feel this way?" },
+  { keys:["frustrated","frustration","nothing works","fed up","annoyed"],
+    res:"Frustration is draining, especially when you feel like you're trying hard but nothing is working 😤 Take a breath. What's been making you feel so stuck or frustrated?" },
+  { keys:["jealous","jealousy","envious","why not me"],
+    res:"Jealousy is a very human feeling — it usually points to something we deeply want for ourselves 💭 What is it that you're feeling envious about? Let's talk through it." },
+
+  /* ── HAPPINESS & POSITIVITY ── */
+  { keys:["happy","so happy","very happy","i'm happy","feeling happy"],
+    res:"That's absolutely wonderful to hear! 😊✨ Happiness is precious — hold onto it. What's been making you feel so good today? I'd love to hear!" },
+  { keys:["excited","so excited","can't wait","thrilled"],
+    res:"Ooh, excitement is such a wonderful energy! 🎉 What are you excited about? Tell me everything!" },
+  { keys:["grateful","thankful","blessed","thank god"],
+    res:"Gratitude is such a powerful feeling 🙏✨ It can literally shift our whole mindset. What are you feeling grateful for right now?" },
+  { keys:["good","i'm good","doing good","feeling good","i am good"],
+    res:"That's really nice to hear! 😊 I'm glad you're doing well. Is there anything on your mind you'd like to share, or just enjoying the good vibes today?" },
+  { keys:["great","feeling great","doing great","amazing","wonderful","fantastic"],
+    res:"Amazing! 🌟 It's beautiful when things are going well. What's been making life feel so great lately?" },
+
+  /* ── SLEEP ── */
+  { keys:["can't sleep","insomnia","no sleep","sleepless","trouble sleeping","can't fall asleep"],
+    res:"Not being able to sleep is really hard on your mind and body 😔 A few things that can help: no screens 30 minutes before bed, keep the room cool, and try slow deep breathing. How long have you been struggling with sleep?" },
+  { keys:["tired","exhausted","so tired","drained","no energy","fatigue"],
+    res:"Feeling tired and drained can make everything feel harder 😴 Is it physical tiredness, emotional tiredness, or both? Sometimes our mind gets tired even when our body hasn't done much." },
+  { keys:["sleepy","want to sleep","feeling sleepy"],
+    res:"Rest is so important 💜 If you feel sleepy, honor that — your body is asking for something. Is there something keeping you from resting, or just checking in before you sleep?" },
+
+  /* ── SELF-WORTH & CONFIDENCE ── */
+  { keys:["worthless","i'm worthless","no value","i don't matter","i'm nothing"],
+    res:"Please hear me clearly: you are not worthless 💜 Those thoughts can feel very real, but they are not the truth about who you are. You matter. Would you be willing to tell me what's been making you feel this way?" },
+  { keys:["hate myself","self hate","i hate myself","i'm ugly","i'm stupid","i'm a failure"],
+    res:"I'm so sorry you're being this hard on yourself 💔 You deserve the same kindness you would give to someone you love. What's been triggering these thoughts about yourself?" },
+  { keys:["not good enough","never good enough","i always fail","i can't do anything right"],
+    res:"That inner critic can be so cruel sometimes 😔 But one failure — or even many — does not define your worth. What happened that made you feel like you're not good enough?" },
+  { keys:["confidence","no confidence","low confidence","i'm not confident","feel insecure"],
+    res:"Confidence is something that grows over time with small wins and self-compassion 💪 What's one area where you feel least confident? Let's talk about it." },
+  { keys:["proud","i'm proud","i did it","i achieved","i succeeded"],
+    res:"Yes!! That is so wonderful — you should be proud! 🎉💜 Celebrating your wins, big or small, is so important. What did you accomplish?" },
+
+  /* ── RELATIONSHIPS ── */
+  { keys:["fight","argument","argument with","fought with","conflict"],
+    res:"Arguments and conflicts can be really emotionally draining 💔 What happened? Sometimes just talking through it helps bring clarity on what you're feeling and what you need." },
+  { keys:["breakup","broke up","heartbreak","heartbroken","he left","she left"],
+    res:"I'm so sorry — heartbreak is one of the most painful experiences 💔 Your feelings of pain, grief, and confusion are completely valid. How are you holding up right now?" },
+  { keys:["relationship","my partner","my boyfriend","my girlfriend","my husband","my wife"],
+    res:"Relationships can bring such joy and also such complexity 💙 What's going on with your relationship? I'm here to listen without taking sides." },
+  { keys:["family","parents","mom","dad","mother","father","sibling","brother","sister"],
+    res:"Family relationships can be deeply loving and sometimes deeply painful at the same time 💜 What's been happening with your family?" },
+  { keys:["friend","friendship","my friend","best friend","friends"],
+    res:"Friendships matter so much for our emotional wellbeing 💙 Are things okay with your friends, or is something going on there?" },
+
+  /* ── WORK & STUDIES ── */
+  { keys:["work","job","office","boss","coworker","colleague","workplace"],
+    res:"Work can be a huge source of stress 😓 Whether it's a difficult boss, too much workload, or feeling unappreciated — it all takes a toll. What's been going on at work?" },
+  { keys:["study","studies","exam","exams","school","college","university","homework","assignment"],
+    res:"Academic pressure can feel really intense 📚 Exams and deadlines pile up fast. How are your studies going? Is there something specific that's stressing you out?" },
+  { keys:["fail","failed","i failed","i failed my exam","i'm failing"],
+    res:"Failing something hurts — there's no sugar-coating that 😔 But a failure is not a verdict on your worth or your future. It's information and a stepping stone. What happened?" },
+  { keys:["future","career","don't know what to do","confused about life","lost"],
+    res:"Feeling lost about the future is incredibly common and very uncomfortable 💭 You don't have to have everything figured out. What direction are you feeling uncertain about?" },
+
+  /* ── PHYSICAL HEALTH ── */
+  { keys:["sick","ill","not feeling well","fever","headache","pain","body pain"],
+    res:"I'm sorry you're not feeling well physically 🙁 Being sick affects your mood too. Make sure you're resting and staying hydrated. Is there something I can help you with emotionally while you recover?" },
+  { keys:["eating","not eating","lost appetite","overeating","binge eating","food"],
+    res:"Our relationship with food is often connected to our emotions 🍽️ Are you finding yourself eating too much, too little, or just noticing a change? No judgment here — just want to understand." },
+
+  /* ── MINDFULNESS & BREATHING ── */
+  { keys:["breathe","breathing","breathing exercise","calm down","how to relax"],
+    res:"Here's a simple calming breath exercise 🌬️\n\n1. Breathe IN slowly for 4 counts.\n2. HOLD for 4 counts.\n3. Breathe OUT slowly for 6 counts.\n\nRepeat this 3 times. Do you feel a little calmer?" },
+  { keys:["meditation","meditate","mindfulness","how to meditate"],
+    res:"Mindfulness and meditation are wonderful tools 🧘 Even 5 minutes a day can reduce stress significantly. Try this: sit comfortably, close your eyes, and focus only on the sensation of your breath. When thoughts come, gently return to your breath. Would you like more guidance?" },
+  { keys:["journal","journaling","write down","diary"],
+    res:"Journaling is one of the most powerful emotional health habits 📓 Writing out your thoughts and feelings gives them a place to go outside your head. Even 5 minutes a day can make a huge difference. Have you tried journaling before?" },
+
+  /* ── MOTIVATION & GROWTH ── */
+  { keys:["motivate","motivation","no motivation","can't get started","procrastinating","procrastination"],
+    res:"Lack of motivation often signals burnout or emotional overwhelm — not laziness 💜 Start with just one tiny step. Not the whole task — just one small piece. What's the task you're avoiding?" },
+  { keys:["give up","want to give up","thinking of giving up","i quit"],
+    res:"Please don't give up 💜 I know things feel impossibly hard right now, but you've made it through difficult moments before. What's making you want to give up?" },
+  { keys:["goal","goals","dream","dreams","ambition"],
+    res:"Having goals and dreams is beautiful 🌟 They give us direction and purpose. What's a dream or goal that's been on your heart lately?" },
+  { keys:["change","want to change","i want to be better","improve myself","self improvement"],
+    res:"The desire to grow and change is one of the most courageous things 💜 What area of yourself are you hoping to work on? I'm here to support that journey." },
+
+  /* ── CRISIS / SERIOUS ── */
+  { keys:["suicide","suicidal","want to die","end my life","kill myself","don't want to live"],
+    res:"I hear you, and I'm taking what you've shared very seriously 💜 Please know that you matter deeply. If you're in crisis right now, please reach out to a helpline immediately:\n\n📞 iCall (India): 9152987821\n📞 Vandrevala Foundation: 1860-2662-345 (24/7)\n\nAre you safe right now? Please talk to me." },
+  { keys:["hurt myself","self harm","cutting","self-harm"],
+    res:"Thank you for trusting me with this 💜 Please know that you deserve care and healing, not pain. You are not alone. Please speak to someone you trust or reach a helpline:\n\n📞 iCall: 9152987821\n\nCan you tell me what's been happening?" },
+
+  /* ── GENERAL EMOTIONAL CHECK-INS ── */
+  { keys:["how are you","how r u"],
+    res:"I'm here and fully present for you 💜 More importantly — how are YOU doing? That's what matters most right now." },
+  { keys:["i don't know","idk","not sure","confused","don't understand"],
+    res:"That's okay — sometimes feelings don't come with neat labels 💭 You don't have to have it all figured out. Just tell me whatever comes to mind, even if it doesn't make sense." },
+  { keys:["bored","boring","nothing to do","so bored"],
+    res:"Boredom can sometimes be the mind's way of asking for something meaningful 💭 Is it a restless boredom, or more of a feeling of emptiness? Let's explore what might spark some joy for you." },
+  { keys:["okay","ok","i'm okay","i am okay","fine","i'm fine"],
+    res:"Okay can mean many things 💙 Sometimes it means genuinely fine, and sometimes it means 'I'm managing.' Which one feels more true for you right now?" },
+  { keys:["not okay","not fine","not good","i'm not okay","i am not okay"],
+    res:"Thank you for being honest with me 💜 It takes courage to say 'I'm not okay.' I'm right here. What's been going on?" },
+];
+
+/* ── FALLBACK RESPONSES ── */
+const fallbacks = [
+  "That sounds important. I'm listening — can you tell me more? 💜",
+  "Thank you for sharing that with me. How long have you been feeling this way?",
+  "I hear you. Would it help to talk through what's been happening step by step?",
+  "Your feelings are completely valid. What do you think is at the root of this?",
+  "I'm here with you. Sometimes it helps to just say it all out loud — what else is on your mind?",
+  "That must not be easy to carry. Is there someone in your life you've been able to talk to about this?",
+  "Take a slow breath with me. What would feel most helpful right now — to vent, get advice, or just feel heard?",
+  "You matter, and what you're going through matters. Can you tell me a little more?",
+  "I want to understand better. When did these feelings start?",
+  "It's okay if everything feels messy and unclear. We can sort through it together, one step at a time.",
+];
+
+/* ── MOOD DETECTION ── */
+function detectMood(text){
+  const t = text.toLowerCase();
+  if(t.match(/suicid|want to die|end my life|kill myself/)) return "In Crisis 🆘";
+  if(t.match(/depress|hopeless|worthless|hate myself/)) return "Very Low 💔";
+  if(t.match(/sad|lonely|crying|miss|heartbroken/)) return "Sad 😔";
+  if(t.match(/stress|anxious|overwhelm|panic|worry/)) return "Stressed 😟";
+  if(t.match(/angry|furious|rage|frustrated|hate/)) return "Angry 😠";
+  if(t.match(/happy|great|amazing|wonderful|excited|grateful/)) return "Happy 😊";
+  if(t.match(/tired|exhausted|drained|sleepy/)) return "Tired 😴";
+  if(t.match(/okay|fine|good|alright/)) return "Neutral 🙂";
+  return "Calm 🙂";
+}
+
+/* ── RESPONSE LOGIC ── */
+function generateResponse(text){
+  const t = text.toLowerCase().trim();
+
+  // Score-based matching: longer/more-specific keyword = higher score
+  let bestMatch = null;
+  let bestScore = 0;
+
+  for(const entry of keywordResponses){
+    for(const key of entry.keys){
+      // Use word-boundary regex so "good" doesn't fire inside "relationship" or "good morning"
+      const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp('(?:^|\\s)' + escaped + '(?:\\s|$|[.,!?])', 'i');
+      if(regex.test(t)){
+        // Prefer longer (more specific) keyword matches
+        if(key.length > bestScore){
+          bestScore = key.length;
+          bestMatch = entry.res;
+        }
+      }
+    }
+  }
+
+  if(bestMatch) return bestMatch;
+
+  // Fallback
+  return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+}
+
+/* ── SEND MESSAGE ── */
+function enterSend(e){ if(e.key==="Enter") sendMessage(); }
+
+function sendMessage(){
+  const input = document.getElementById("userInput");
+  const text = input.value.trim();
+  if(!text) return;
+
+  addMessage(text, "user", true);
+  document.getElementById("moodMeter").innerText = "Mood: " + detectMood(text);
+  input.value = "";
+
+  showTyping();
+
+  setTimeout(()=>{
+    removeTyping();
+    addMessage(generateResponse(text), "bot", true);
+  }, 1000 + Math.random()*800);
+}
+
+/* ── ADD MESSAGE ── */
+function addMessage(text, type, save){
+  const msg = document.createElement("div");
+  msg.classList.add("message", type);
+
+  if(type === "bot"){
+    // Use data attribute to avoid quote-escaping issues in onclick
+    const safeId = "v_" + Date.now();
+    msg.innerHTML = text.replace(/\n/g,"<br>") +
+      `<br><button class='voice-btn' data-id='${safeId}' onclick="speakById('${safeId}')">🔊 Voice</button>`;
+    msg.dataset.speech = text;
+    msg.id = safeId;
+  } else {
+    msg.innerText = text;
+  }
+
+  chatbox.appendChild(msg);
+  chatbox.scrollTop = chatbox.scrollHeight;
+
+  if(save){
+    history.push({text, type});
+    localStorage.setItem("giniChat", JSON.stringify(history));
+  }
+}
+
+/* ── TYPING ── */
+function showTyping(){
+  const msg = document.createElement("div");
+  msg.classList.add("message","bot","typing");
+  msg.id = "typing";
+  msg.innerText = "Gini is here for you...";
+  chatbox.appendChild(msg);
+  chatbox.scrollTop = chatbox.scrollHeight;
+}
+function removeTyping(){
+  const t = document.getElementById("typing");
+  if(t) t.remove();
+}
+
+/* ── VOICE OUTPUT (FIXED) ── */
+// Uses cachedVoices; if empty, tries to reload once
+function speakById(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const text = el.dataset.speech;
+  if(!text) return;
+  speakText(text);
+}
+
+function speakText(text){
+  // Cancel any ongoing speech first
+  speechSynthesis.cancel();
+
+  const speech = new SpeechSynthesisUtterance(text);
+  speech.rate = 0.9;
+  speech.pitch = 1.2;
+  speech.lang = "en-US";
+
+  // Reload voices if cache is empty (timing fix)
+  if(cachedVoices.length === 0){
+    cachedVoices = speechSynthesis.getVoices();
+  }
+
+  const femaleKeywords = ["female","woman","zira","samantha","victoria","karen","moira","fiona","google uk english female","microsoft zira"];
+  const femaleVoice = cachedVoices.find(v =>
+    femaleKeywords.some(k => v.name.toLowerCase().includes(k))
+  );
+
+  if(femaleVoice){
+    speech.voice = femaleVoice;
+  }
+
+  // Chrome bug workaround: long text gets cut off — split into chunks
+  if(text.length > 200){
+    const sentences = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
+    let i = 0;
+    function speakNext(){
+      if(i >= sentences.length) return;
+      const chunk = new SpeechSynthesisUtterance(sentences[i].trim());
+      chunk.rate = 0.9; chunk.pitch = 1.2; chunk.lang = "en-US";
+      if(femaleVoice) chunk.voice = femaleVoice;
+      chunk.onend = () => { i++; speakNext(); };
+      speechSynthesis.speak(chunk);
+    }
+    speakNext();
+    return;
+  }
+
+  speechSynthesis.speak(speech);
+}
+
+/* ── VOICE INPUT ── */
+function startListening(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){
+    alert("Speech recognition not supported in this browser.");
+    return;
+  }
+  const recognition = new SR();
+  recognition.lang = "en-US";
+  recognition.start();
+  recognition.onresult = function(event){
+    const result = event.results[0][0].transcript;
+    document.getElementById("userInput").value = result;
+    sendMessage();
+  };
+  recognition.onerror = function(e){
+    console.warn("Speech error:", e.error);
+  };
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Stress Thermometer — MindEase</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #030712;
+    --panel: rgba(255,255,255,0.03);
+    --border: rgba(255,255,255,0.07);
+    --cyan: #00f5ff;
+    --green: #39ff14;
+    --yellow: #ffef00;
+    --orange: #ff8c00;
+    --red: #ff003c;
+    --magenta: #ff00aa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Share Tech Mono', monospace;
+    background: var(--bg);
+    color: #a0d4e0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px 60px;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      linear-gradient(rgba(0,245,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,255,0.025) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .container { position: relative; z-index: 1; max-width: 860px; width: 100%; }
+
+  header { text-align: center; margin-bottom: 40px; }
+  .logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: var(--cyan);
+    text-shadow: 0 0 20px rgba(0,245,255,0.5), 0 0 60px rgba(0,245,255,0.15);
+  }
+  .logo span { color: var(--magenta); text-shadow: 0 0 20px rgba(255,0,170,0.5); }
+  .tagline {
+    font-size: 0.72rem; letter-spacing: 0.3em;
+    color: rgba(0,245,255,0.4); margin-top: 8px; text-transform: uppercase;
+  }
+  .scan-line {
+    width: 160px; height: 1px; margin: 16px auto 0;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    animation: scan 3s ease-in-out infinite;
+  }
+  @keyframes scan { 0%,100%{opacity:0.3;width:80px} 50%{opacity:1;width:220px} }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  @media(max-width:640px){ .main-grid{grid-template-columns:1fr} }
+
+  /* THERMOMETER */
+  .thermo-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .thermo-outer {
+    width: 72px;
+    height: 380px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .thermo-outer::before {
+    content: ''; position: absolute; inset: 0; border-radius: 40px;
+    background: linear-gradient(to bottom, transparent 20%, rgba(0,245,255,0.03));
+  }
+  .thermo-fill {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    border-radius: 0 0 40px 40px;
+    transition: height 0.6s cubic-bezier(0.34,1.56,0.64,1), background 0.5s;
+    height: 10%;
+  }
+  .thermo-bulb {
+    position: absolute;
+    bottom: -4px; left: 50%;
+    transform: translateX(-50%);
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    transition: background 0.5s, box-shadow 0.5s;
+  }
+  .tick-marks {
+    position: absolute;
+    right: -28px; top: 0; bottom: 0;
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    padding: 10px 0;
+  }
+  .tick {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 10px; color: rgba(160,212,224,0.4);
+    letter-spacing: 0.05em;
+  }
+  .tick::before {
+    content: '';
+    width: 8px; height: 1px;
+    background: rgba(160,212,224,0.25);
+  }
+  .thermo-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.2em;
+    color: rgba(0,245,255,0.4); text-transform: uppercase;
+    text-align: center;
+  }
+
+  /* SLIDER + RIGHT PANEL */
+  .right-panel { display: flex; flex-direction: column; gap: 20px; }
+
+  .level-display {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px 26px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .level-display::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  }
+  .level-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 4rem; font-weight: 900;
+    line-height: 1;
+    transition: color 0.5s, text-shadow 0.5s;
+  }
+  .level-label {
+    font-size: 0.85rem; letter-spacing: 0.25em;
+    text-transform: uppercase; margin-top: 6px;
+    transition: color 0.5s;
+  }
+
+  .slider-wrap { padding: 0 4px; }
+  .slider-label {
+    font-size: 0.68rem; letter-spacing: 0.25em;
+    color: rgba(0,245,255,0.45); text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%; height: 6px;
+    border-radius: 3px; outline: none;
+    cursor: pointer;
+    background: rgba(255,255,255,0.08);
+    transition: background 0.4s;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--bg);
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+
+  /* SUGGESTIONS */
+  .suggestion-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 22px;
+    transition: border-color 0.4s;
+  }
+  .sug-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .sug-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    background: rgba(0,245,255,0.08);
+  }
+  .sug-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.78rem; letter-spacing: 0.1em;
+    color: var(--cyan);
+  }
+  .sug-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .sug-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 13px; line-height: 1.5;
+    color: rgba(160,212,224,0.85);
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    border: 0.5px solid rgba(255,255,255,0.05);
+    animation: fadeUp 0.3s ease both;
+  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+  .sug-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0; margin-top: 4px;
+    transition: background 0.4s;
+  }
+
+  /* HISTORY */
+  .history-wrap {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 22px;
+  }
+  .history-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.68rem; letter-spacing: 0.2em;
+    color: rgba(0,245,255,0.45); text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .history-bars {
+    display: flex; align-items: flex-end;
+    gap: 5px; height: 60px;
+  }
+  .h-bar {
+    flex: 1; border-radius: 3px 3px 0 0;
+    min-height: 4px;
+    transition: height 0.5s ease, background 0.5s;
+    position: relative;
+  }
+  .h-bar:hover::after {
+    content: attr(data-val);
+    position: absolute; bottom: 105%;
+    left: 50%; transform: translateX(-50%);
+    font-size: 10px; color: var(--cyan);
+    background: rgba(0,0,0,0.8);
+    padding: 2px 6px; border-radius: 4px;
+  }
+  .log-btn {
+    margin-top: 12px; width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: 1px solid rgba(0,245,255,0.25);
+    border-radius: 8px;
+    color: var(--cyan);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px; letter-spacing: 0.2em;
+    cursor: pointer; text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .log-btn:hover { background: rgba(0,245,255,0.08); }
+  .log-msg {
+    text-align: center; font-size: 11px;
+    color: var(--green); letter-spacing: 0.1em;
+    margin-top: 6px; height: 16px;
+    transition: opacity 0.3s;
+  }
+
+  .pulse { animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">Stress<span>Meter</span></div>
+    <div class="tagline">Real-time stress level monitor &amp; relief guide</div>
+    <div class="scan-line"></div>
+  </header>
+   <div style="
+display:flex;
+justify-content:center;
+gap:12px;
+padding:12px;
+background:#0b3d4f;
+border-bottom:2px solid #00d9ff;
+box-shadow:0 0 12px #00d9ff;
+flex-wrap:wrap;
+">
+
+<button onclick="window.open('Mental health awareness home.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Home</button>
+
+<button onclick="window.open('MindEase_Gini_fixed.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">MindEase GinI</button>
+
+<button onclick="window.open('mind_index.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">mind index</button>
+
+<button onclick="window.open('stress-thermometer.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Stress Thermometer</button>
+
+<button onclick="window.open('thought-reframe.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Thought Reframe</button>
+
+<button onclick="window.open('micro-break-reminder.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Micro Break</button>
+
+<button onclick="window.open('game_index.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Relaxation Game</button>
+
+   
+</div>
+
+  <div class="main-grid">
+    <!-- THERMOMETER -->
+    <div class="thermo-wrap">
+      <div class="thermo-outer" id="thermo">
+        <div class="thermo-fill" id="thermoFill"></div>
+        <div class="thermo-bulb" id="thermoBulb"></div>
+        <div class="tick-marks">
+          <div class="tick">10</div>
+          <div class="tick">8</div>
+          <div class="tick">6</div>
+          <div class="tick">4</div>
+          <div class="tick">2</div>
+        </div>
+      </div>
+      <div class="thermo-label">Stress<br/>Level</div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+      <div class="level-display">
+        <div class="level-num" id="levelNum">1</div>
+        <div class="level-label" id="levelLabel">Minimal Stress</div>
+      </div>
+
+      <div class="slider-wrap">
+        <div class="slider-label">Drag to set your current stress level</div>
+        <input type="range" min="1" max="10" value="1" step="1" id="stressSlider"/>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(160,212,224,0.3);margin-top:6px;letter-spacing:0.1em">
+          <span>1 — CALM</span><span>5 — MODERATE</span><span>10 — CRISIS</span>
+        </div>
+      </div>
+
+      <div class="suggestion-card" id="sugCard">
+        <div class="sug-header">
+          <div class="sug-icon" id="sugIcon">🧘</div>
+          <div class="sug-title" id="sugTitle">Relaxation Protocol</div>
+        </div>
+        <ul class="sug-list" id="sugList"></ul>
+      </div>
+
+      <div class="history-wrap">
+        <div class="history-title">Today's log</div>
+        <div class="history-bars" id="histBars"></div>
+        <button class="log-btn" onclick="logEntry()">+ Log current level</button>
+        <div class="log-msg" id="logMsg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const levels = {
+  1:  { label:'Minimal Stress',   color:'#39ff14', icon:'🌿', title:'You\'re Doing Great',    tips:['Take a mindful walk outside','Write 3 things you\'re grateful for','Keep up your positive habits'] },
+  2:  { label:'Very Low Stress',  color:'#39ff14', icon:'🌿', title:'Stay Balanced',           tips:['Gentle 5-min stretching','Hydrate — drink a glass of water','Share a positive moment with someone'] },
+  3:  { label:'Low Stress',       color:'#a8ff00', icon:'🍃', title:'Light Relief Mode',       tips:['Box breathing: 4 in, 4 hold, 4 out','Step away from screen for 5 mins','Listen to your favourite calm song'] },
+  4:  { label:'Mild Stress',      color:'#ffef00', icon:'☀️', title:'Grounding Techniques',    tips:['5-4-3-2-1 sensory technique','Write down what\'s on your mind','Take 10 slow deep breaths'] },
+  5:  { label:'Moderate Stress',  color:'#ffef00', icon:'⚡', title:'Active Stress Relief',    tips:['20 jumping jacks to release tension','Call or text a close friend','Splash cold water on your face'] },
+  6:  { label:'High Stress',      color:'#ff8c00', icon:'🔥', title:'Immediate Calm Needed',   tips:['4-7-8 breathing: inhale 4, hold 7, exhale 8','Step outside for fresh air — even 2 mins','Progressive muscle relaxation: tense & release each muscle'] },
+  7:  { label:'Very High Stress', color:'#ff6600', icon:'🚨', title:'Stress Intervention',     tips:['Stop all tasks — take a full break now','Practice guided body scan meditation','Avoid caffeine, drink chamomile tea instead'] },
+  8:  { label:'Severe Stress',    color:'#ff003c', icon:'⚠️', title:'Urgent Relief Protocol',  tips:['Lie down flat, close eyes for 10 mins','Call iCall helpline: 9152987821','Do not make any important decisions right now'] },
+  9:  { label:'Critical Stress',  color:'#ff003c', icon:'🆘', title:'Please Seek Support',     tips:['Tell someone you trust how you feel','Contact Vandrevala: 1860-2662-345 (24/7)','Remember: this feeling is temporary — you will be okay'] },
+  10: { label:'Crisis Level',     color:'#ff00aa', icon:'🆘', title:'Reach Out Now',           tips:['Call iCall immediately: 9152987821','You are not alone — please talk to someone','Crisis Text: Text HELLO to 741741'] }
+};
+
+const slider = document.getElementById('stressSlider');
+const fill = document.getElementById('thermoFill');
+const bulb = document.getElementById('thermoBulb');
+const levelNum = document.getElementById('levelNum');
+const levelLabel = document.getElementById('levelLabel');
+const sugCard = document.getElementById('sugCard');
+const sugIcon = document.getElementById('sugIcon');
+const sugTitle = document.getElementById('sugTitle');
+const sugList = document.getElementById('sugList');
+let history = JSON.parse(localStorage.getItem('stressMeterHistory') || '[]');
+
+function getColor(v) {
+  return levels[v].color;
+}
+
+function update(v) {
+  const d = levels[v];
+  const pct = ((v - 1) / 9) * 85 + 5;
+
+  fill.style.height = pct + '%';
+  fill.style.background = `linear-gradient(to top, ${d.color}cc, ${d.color}44)`;
+  bulb.style.background = d.color;
+  bulb.style.boxShadow = `0 0 20px ${d.color}99, 0 0 40px ${d.color}44`;
+
+  levelNum.textContent = v;
+  levelNum.style.color = d.color;
+  levelNum.style.textShadow = `0 0 30px ${d.color}88`;
+  levelLabel.textContent = d.label;
+  levelLabel.style.color = d.color + 'aa';
+
+  sugIcon.textContent = d.icon;
+  sugTitle.textContent = d.title;
+  sugCard.style.borderColor = d.color + '44';
+
+  sugList.innerHTML = '';
+  d.tips.forEach((tip, i) => {
+    const li = document.createElement('li');
+    li.className = 'sug-item';
+    li.style.animationDelay = (i * 0.07) + 's';
+    li.innerHTML = `<span class="sug-dot" style="background:${d.color}"></span>${tip}`;
+    sugList.appendChild(li);
+  });
+
+  slider.style.background = `linear-gradient(to right, ${d.color} ${((v-1)/9)*100}%, rgba(255,255,255,0.08) ${((v-1)/9)*100}%)`;
+  const thumb = document.createElement('style');
+  thumb.id = 'thumbStyle';
+  document.getElementById('thumbStyle')?.remove();
+  thumb.innerHTML = `input[type=range]::-webkit-slider-thumb { background: ${d.color}; box-shadow: 0 0 10px ${d.color}88; }`;
+  document.head.appendChild(thumb);
+
+  renderBars();
+}
+
+function renderBars() {
+  const bars = document.getElementById('histBars');
+  bars.innerHTML = '';
+  const items = history.slice(-20);
+  if (items.length === 0) {
+    bars.innerHTML = '<div style="color:rgba(160,212,224,0.2);font-size:11px;letter-spacing:0.15em">No entries yet</div>';
+    return;
+  }
+  items.forEach(h => {
+    const d = document.createElement('div');
+    d.className = 'h-bar';
+    d.style.height = ((h.val / 10) * 56 + 4) + 'px';
+    d.style.background = levels[h.val].color + 'aa';
+    d.setAttribute('data-val', h.val);
+    bars.appendChild(d);
+  });
+}
+
+function logEntry() {
+  const v = parseInt(slider.value);
+  history.push({ val: v, time: Date.now() });
+  if (history.length > 30) history.shift();
+  localStorage.setItem('stressMeterHistory', JSON.stringify(history));
+  renderBars();
+  const msg = document.getElementById('logMsg');
+  msg.textContent = '✓ Entry logged at ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  setTimeout(() => msg.textContent = '', 3000);
+}
+
+slider.addEventListener('input', () => update(parseInt(slider.value)));
+update(1);
+renderBars();
+</script>
+</body>
+</html>

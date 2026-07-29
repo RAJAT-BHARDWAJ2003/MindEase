@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Micro-Break Reminder — MindEase</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #030a08;
+    --panel: rgba(255,255,255,0.03);
+    --border: rgba(255,255,255,0.06);
+    --green: #00ff88;
+    --cyan: #00f5e0;
+    --amber: #ffcc00;
+    --pink: #ff4db8;
+    --purple: #bb55ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Share Tech Mono', monospace;
+    background: var(--bg);
+    color: #a0c8b8;
+    min-height: 100vh;
+    padding: 30px 20px 60px;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      linear-gradient(rgba(0,255,136,0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,0.018) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none; z-index: 0;
+  }
+  .z { position: relative; z-index: 1; }
+  .container { max-width: 740px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 34px; }
+  .logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    font-weight: 900; letter-spacing: 0.08em;
+    color: var(--green);
+    text-shadow: 0 0 20px rgba(0,255,136,0.5), 0 0 60px rgba(0,255,136,0.12);
+  }
+  .logo span { color: var(--cyan); text-shadow: 0 0 20px rgba(0,245,224,0.5); }
+  .tagline { font-size: 0.7rem; letter-spacing: 0.3em; color: rgba(0,255,136,0.4); margin-top: 8px; text-transform: uppercase; }
+
+  /* TIMER RING */
+  .timer-section {
+    display: flex; flex-direction: column; align-items: center;
+    margin-bottom: 28px;
+  }
+  .ring-wrap { position: relative; width: 220px; height: 220px; margin-bottom: 20px; }
+  .ring-svg { width: 220px; height: 220px; transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 8; }
+  .ring-fill {
+    fill: none; stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s linear, stroke 0.5s;
+  }
+  .ring-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .timer-display {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.8rem; font-weight: 900; line-height: 1;
+    transition: color 0.5s, text-shadow 0.5s;
+  }
+  .mode-label {
+    font-size: 0.65rem; letter-spacing: 0.25em;
+    text-transform: uppercase; margin-top: 6px;
+    transition: color 0.5s;
+  }
+
+  /* CONTROLS */
+  .controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .ctrl-btn {
+    padding: 11px 26px; border-radius: 8px; cursor: pointer;
+    font-family: 'Orbitron', sans-serif; font-size: 0.72rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    border: 1px solid; transition: all 0.2s;
+  }
+  .btn-start { background: rgba(0,255,136,0.1); border-color: var(--green); color: var(--green); }
+  .btn-start:hover { background: rgba(0,255,136,0.2); box-shadow: 0 0 16px rgba(0,255,136,0.3); }
+  .btn-pause { background: rgba(255,204,0,0.1); border-color: var(--amber); color: var(--amber); }
+  .btn-pause:hover { background: rgba(255,204,0,0.2); }
+  .btn-reset { background: transparent; border-color: rgba(255,255,255,0.15); color: rgba(160,200,190,0.5); }
+  .btn-reset:hover { border-color: rgba(255,255,255,0.3); }
+
+  /* SESSION DOTS */
+  .session-dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 28px; }
+  .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.12);
+    transition: all 0.4s;
+  }
+  .dot.done { background: var(--green); border-color: var(--green); box-shadow: 0 0 8px rgba(0,255,136,0.5); }
+  .dot.current { border-color: var(--green); animation: dotPulse 1s ease-in-out infinite; }
+  @keyframes dotPulse { 0%,100%{box-shadow:0 0 4px rgba(0,255,136,0.3)} 50%{box-shadow:0 0 12px rgba(0,255,136,0.6)} }
+
+  /* BREAK ACTIVITY */
+  .break-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 16px; padding: 22px 24px; margin-bottom: 18px;
+    position: relative; overflow: hidden; display: none;
+  }
+  .break-card.show { display: block; animation: fadeUp 0.5s ease; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+  .break-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  }
+  .break-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .break-icon {
+    width: 52px; height: 52px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; background: rgba(0,245,224,0.08);
+  }
+  .break-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.9rem; color: var(--cyan); letter-spacing: 0.08em;
+  }
+  .break-duration { font-size: 11px; color: rgba(0,245,224,0.45); margin-top: 3px; letter-spacing: 0.1em; }
+  .break-steps { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .break-step {
+    display: flex; gap: 10px; align-items: flex-start;
+    font-size: 13px; line-height: 1.5; color: rgba(160,200,190,0.85);
+    padding: 8px 12px; background: rgba(255,255,255,0.02); border-radius: 8px;
+  }
+  .step-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px; color: var(--cyan);
+    min-width: 20px; padding-top: 1px; opacity: 0.6;
+  }
+  .skip-btn {
+    margin-top: 14px; padding: 9px 20px; border-radius: 8px;
+    background: transparent; border: 1px solid rgba(0,245,224,0.2);
+    color: rgba(0,245,224,0.5); font-family: 'Share Tech Mono', monospace;
+    font-size: 12px; letter-spacing: 0.15em; cursor: pointer;
+    transition: all 0.2s; text-transform: uppercase;
+  }
+  .skip-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  /* SETTINGS */
+  .settings-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px 24px; margin-bottom: 18px;
+  }
+  .settings-title {
+    font-size: 0.65rem; letter-spacing: 0.3em;
+    color: rgba(0,255,136,0.4); text-transform: uppercase; margin-bottom: 14px;
+  }
+  .setting-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .setting-label { font-size: 12px; color: rgba(160,200,190,0.6); min-width: 130px; letter-spacing: 0.05em; }
+  input[type=range] {
+    flex: 1; -webkit-appearance: none; height: 4px; border-radius: 2px;
+    background: rgba(255,255,255,0.08); outline: none; cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 8px rgba(0,255,136,0.5); cursor: pointer;
+  }
+  .setting-val { font-family: 'Orbitron', sans-serif; font-size: 12px; color: var(--green); min-width: 44px; text-align: right; }
+
+  /* STREAK */
+  .streak-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 16px; padding: 18px 24px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;
+  }
+  .stat { text-align: center; }
+  .stat-val { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; font-weight: 900; }
+  .stat-label { font-size: 10px; letter-spacing: 0.2em; color: rgba(160,200,190,0.4); text-transform: uppercase; margin-top: 4px; }
+  .s-green { color: var(--green); text-shadow: 0 0 12px rgba(0,255,136,0.4); }
+  .s-amber { color: var(--amber); text-shadow: 0 0 12px rgba(255,204,0,0.4); }
+  .s-purple { color: var(--purple); text-shadow: 0 0 12px rgba(187,85,255,0.4); }
+</style>
+</head>
+<body>
+<div class="container z">
+  <header>
+    <div class="logo">Micro<span>Break</span></div>
+    <div class="tagline">Pomodoro wellness timer — study smart, rest well</div>
+  </header>
+ <div style="
+display:flex;
+justify-content:center;
+gap:12px;
+padding:12px;
+background:#0b3d4f;
+border-bottom:2px solid #00d9ff;
+box-shadow:0 0 12px #00d9ff;
+flex-wrap:wrap;
+">
+
+<button onclick="window.open('Mental health awareness home.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Home</button>
+
+<button onclick="window.open('MindEase_Gini_fixed.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">MindEase Gini</button>
+
+<button onclick="window.open('mind_index.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">mind index</button>
+
+<button onclick="window.open('stress-thermometer.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Stress Thermometer</button>
+
+<button onclick="window.open('thought-reframe.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Thought Reframe</button>
+
+<button onclick="window.open('micro-break-reminder.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Micro Break</button>
+
+<button onclick="window.open('game_index.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Relaxation Game</button>
+
+   
+</div>
+  <!-- TIMER -->
+  <div class="timer-section">
+    <div class="ring-wrap">
+      <svg class="ring-svg" viewBox="0 0 220 220">
+        <circle class="ring-bg" cx="110" cy="110" r="98"/>
+        <circle class="ring-fill" id="ringFill" cx="110" cy="110" r="98"/>
+      </svg>
+      <div class="ring-center">
+        <div class="timer-display" id="timerDisplay">25:00</div>
+        <div class="mode-label" id="modeLabel">Focus Session</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="ctrl-btn btn-start" id="startBtn" onclick="toggleTimer()">Start</button>
+      <button class="ctrl-btn btn-reset" onclick="resetTimer()">Reset</button>
+    </div>
+
+    <div class="session-dots" id="sessionDots"></div>
+  </div>
+
+  <!-- BREAK ACTIVITY CARD -->
+  <div class="break-card" id="breakCard">
+    <div class="break-top">
+      <div class="break-icon" id="breakIcon">🌿</div>
+      <div>
+        <div class="break-name" id="breakName">Neck &amp; Shoulder Stretch</div>
+        <div class="break-duration" id="breakDur">5 minute break</div>
+      </div>
+    </div>
+    <ul class="break-steps" id="breakSteps"></ul>
+    <button class="skip-btn" onclick="skipBreak()">Skip break →</button>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="settings-card">
+    <div class="settings-title">Session Settings</div>
+    <div class="setting-row">
+      <span class="setting-label">Focus duration</span>
+      <input type="range" min="5" max="60" value="25" step="5" id="focusRange" oninput="updateSettings()"/>
+      <span class="setting-val" id="focusVal">25 min</span>
+    </div>
+    <div class="setting-row">
+      <span class="setting-label">Break duration</span>
+      <input type="range" min="2" max="15" value="5" step="1" id="breakRange" oninput="updateSettings()"/>
+      <span class="setting-val" id="breakVal">5 min</span>
+    </div>
+    <div class="setting-row">
+      <span class="setting-label">Sessions before long break</span>
+      <input type="range" min="2" max="6" value="4" step="1" id="sessRange" oninput="updateSettings()"/>
+      <span class="setting-val" id="sessVal">4</span>
+    </div>
+  </div>
+
+  <!-- STREAK STATS -->
+  <div class="streak-card">
+    <div class="stat">
+      <div class="stat-val s-green" id="todaySess">0</div>
+      <div class="stat-label">Today's sessions</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val s-amber" id="streakDays">0</div>
+      <div class="stat-label">Day streak</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val s-purple" id="totalMins">0</div>
+      <div class="stat-label">Focus mins today</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const breakActivities = [
+  { icon:'🌿', name:'Neck & Shoulder Stretch', steps:['Tilt head slowly to right — hold 10 sec','Tilt to left — hold 10 sec','Roll shoulders back 5 times, forward 5 times','Clasp hands and stretch arms above your head'] },
+  { icon:'👁️', name:'Eye Rest Exercise', steps:['Close eyes for 20 seconds — breathe slowly','Look far into the distance for 20 seconds','Trace a figure-8 with your eyes slowly 5 times','Palm your eyes — rub hands warm, cover eyes 30 sec'] },
+  { icon:'🫁', name:'Deep Breathing Reset', steps:['Inhale slowly through nose for 4 counts','Hold breath gently for 4 counts','Exhale slowly through mouth for 6 counts','Repeat 5 times — feel your body relax'] },
+  { icon:'🚶', name:'2-Minute Walk', steps:['Stand up and walk around your room or corridor','Swing your arms naturally as you walk','Take at least 50 steps — count if it helps','Return and sit with good posture before resuming'] },
+  { icon:'🙏', name:'Gratitude Moment', steps:['Close your laptop/notebook for a moment','Think of 3 specific things you\'re grateful for today','Say them silently or write them in a notebook','Take one slow breath after each one'] },
+  { icon:'💧', name:'Hydration + Posture Check', steps:['Drink a full glass of water right now','Check your posture — are you slouching?','Roll back shoulders, lift chin gently','Set feet flat on floor — uncross legs'] },
+  { icon:'🤲', name:'Hand & Wrist Relief', steps:['Make fists, then open wide — repeat 10x','Wrist circles: 10 each direction per hand','Press palms together, push gently 10 sec','Shake hands loosely for 15 seconds'] },
+  { icon:'🌞', name:'Sunlight & Fresh Air', steps:['Step outside or near a window for 2 minutes','Let natural light reach your face','Take 3 deep breaths of fresh outdoor air','Notice 5 things you can see around you'] }
+];
+
+let focusMins = 25, breakMins = 5, maxSess = 4;
+let timeLeft = 25 * 60;
+let isRunning = false;
+let isBreak = false;
+let currentSession = 0;
+let timerInterval = null;
+let stats = JSON.parse(localStorage.getItem('microBreakStats') || '{"today":0,"streak":0,"mins":0,"lastDate":""}');
+let currentBreak = null;
+
+const CIRCUMFERENCE = 2 * Math.PI * 98;
+document.getElementById('ringFill').style.strokeDasharray = CIRCUMFERENCE;
+
+function updateRing(fraction, color) {
+  const offset = CIRCUMFERENCE * (1 - fraction);
+  const ring = document.getElementById('ringFill');
+  ring.style.strokeDashoffset = offset;
+  ring.style.stroke = color;
+  document.getElementById('timerDisplay').style.color = color;
+  document.getElementById('timerDisplay').style.textShadow = `0 0 24px ${color}88`;
+  document.getElementById('modeLabel').style.color = color + '88';
+}
+
+function formatTime(s) {
+  return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+}
+
+function renderDots() {
+  const cont = document.getElementById('sessionDots');
+  cont.innerHTML = '';
+  for (let i = 0; i < maxSess; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i < currentSession ? ' done' : i === currentSession && isRunning ? ' current' : '');
+    cont.appendChild(d);
+  }
+}
+
+function toggleTimer() {
+  if (isRunning) {
+    clearInterval(timerInterval);
+    isRunning = false;
+    document.getElementById('startBtn').textContent = 'Resume';
+    document.getElementById('startBtn').className = 'ctrl-btn btn-start';
+  } else {
+    isRunning = true;
+    document.getElementById('startBtn').textContent = 'Pause';
+    document.getElementById('startBtn').className = 'ctrl-btn btn-pause';
+    timerInterval = setInterval(tick, 1000);
+  }
+  renderDots();
+}
+
+function tick() {
+  timeLeft--;
+  const total = isBreak ? breakMins * 60 : focusMins * 60;
+  const frac = timeLeft / total;
+  const color = isBreak ? '#00f5e0' : '#00ff88';
+  document.getElementById('timerDisplay').textContent = formatTime(timeLeft);
+  updateRing(frac, color);
+
+  if (timeLeft <= 0) {
+    clearInterval(timerInterval);
+    isRunning = false;
+    if (!isBreak) {
+      currentSession++;
+      updateStats();
+      startBreak();
+    } else {
+      endBreak();
+    }
+  }
+}
+
+function startBreak() {
+  isBreak = true;
+  timeLeft = breakMins * 60;
+  document.getElementById('modeLabel').textContent = 'Break Time!';
+  document.getElementById('startBtn').textContent = 'Start Break';
+  document.getElementById('startBtn').className = 'ctrl-btn btn-start';
+  currentBreak = breakActivities[Math.floor(Math.random() * breakActivities.length)];
+  showBreakCard(currentBreak);
+  if ('Notification' in window) {
+    Notification.requestPermission().then(p => {
+      if (p === 'granted') new Notification('MindEase Break!', { body: 'Time for: ' + currentBreak.name });
+    });
+  }
+}
+
+function showBreakCard(act) {
+  document.getElementById('breakIcon').textContent = act.icon;
+  document.getElementById('breakName').textContent = act.name;
+  document.getElementById('breakDur').textContent = breakMins + ' minute break';
+  const list = document.getElementById('breakSteps');
+  list.innerHTML = '';
+  act.steps.forEach((s, i) => {
+    const li = document.createElement('li');
+    li.className = 'break-step';
+    li.innerHTML = `<span class="step-num">${String(i+1).padStart(2,'0')}</span>${s}`;
+    list.appendChild(li);
+  });
+  document.getElementById('breakCard').classList.add('show');
+}
+
+function endBreak() {
+  isBreak = false;
+  document.getElementById('breakCard').classList.remove('show');
+  if (currentSession >= maxSess) {
+    currentSession = 0;
+    timeLeft = focusMins * 60;
+    document.getElementById('modeLabel').textContent = 'Great Work! New cycle';
+    updateRing(1, '#bb55ff');
+  } else {
+    timeLeft = focusMins * 60;
+    document.getElementById('modeLabel').textContent = 'Focus Session';
+    updateRing(1, '#00ff88');
+  }
+  document.getElementById('timerDisplay').textContent = formatTime(timeLeft);
+  document.getElementById('startBtn').textContent = 'Start';
+  document.getElementById('startBtn').className = 'ctrl-btn btn-start';
+  renderDots();
+}
+
+function skipBreak() {
+  clearInterval(timerInterval);
+  endBreak();
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  isRunning = false; isBreak = false;
+  timeLeft = focusMins * 60;
+  document.getElementById('timerDisplay').textContent = formatTime(timeLeft);
+  document.getElementById('modeLabel').textContent = 'Focus Session';
+  document.getElementById('startBtn').textContent = 'Start';
+  document.getElementById('startBtn').className = 'ctrl-btn btn-start';
+  document.getElementById('breakCard').classList.remove('show');
+  updateRing(1, '#00ff88');
+  renderDots();
+}
+
+function updateSettings() {
+  focusMins = parseInt(document.getElementById('focusRange').value);
+  breakMins = parseInt(document.getElementById('breakRange').value);
+  maxSess = parseInt(document.getElementById('sessRange').value);
+  document.getElementById('focusVal').textContent = focusMins + ' min';
+  document.getElementById('breakVal').textContent = breakMins + ' min';
+  document.getElementById('sessVal').textContent = maxSess;
+  if (!isRunning) resetTimer();
+  renderDots();
+}
+
+function updateStats() {
+  const today = new Date().toDateString();
+  if (stats.lastDate !== today) {
+    stats.today = 0; stats.mins = 0;
+    if (stats.lastDate) stats.streak++;
+    stats.lastDate = today;
+  }
+  stats.today++;
+  stats.mins += focusMins;
+  localStorage.setItem('microBreakStats', JSON.stringify(stats));
+  document.getElementById('todaySess').textContent = stats.today;
+  document.getElementById('streakDays').textContent = stats.streak;
+  document.getElementById('totalMins').textContent = stats.mins;
+}
+
+function initStats() {
+  document.getElementById('todaySess').textContent = stats.today;
+  document.getElementById('streakDays').textContent = stats.streak;
+  document.getElementById('totalMins').textContent = stats.mins;
+}
+
+updateRing(1, '#00ff88');
+renderDots();
+initStats();
+</script>
+</body>
+</html>

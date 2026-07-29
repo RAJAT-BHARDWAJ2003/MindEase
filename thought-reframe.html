@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Thought Reframe Tool — MindEase</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #040a0f;
+    --panel: rgba(255,255,255,0.03);
+    --border: rgba(255,255,255,0.07);
+    --magenta: #ff00cc;
+    --cyan: #00f0ff;
+    --green: #00ff88;
+    --amber: #ffb700;
+    --purple: #9b59ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Share Tech Mono', monospace;
+    background: var(--bg);
+    color: #b0c8d4;
+    min-height: 100vh;
+    padding: 30px 20px 60px;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,0,204,0.02) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,0,204,0.02) 40px);
+    pointer-events: none; z-index: 0;
+  }
+  .z { position: relative; z-index: 1; }
+  .container { max-width: 780px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 36px; }
+  .logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    font-weight: 900; letter-spacing: 0.08em;
+    color: var(--magenta);
+    text-shadow: 0 0 20px rgba(255,0,204,0.5), 0 0 60px rgba(255,0,204,0.12);
+  }
+  .logo span { color: var(--cyan); text-shadow: 0 0 20px rgba(0,240,255,0.5); }
+  .tagline { font-size: 0.7rem; letter-spacing: 0.3em; color: rgba(255,0,204,0.4); margin-top: 8px; text-transform: uppercase; }
+  .scan-line {
+    width: 140px; height: 1px; margin: 14px auto 0;
+    background: linear-gradient(90deg, transparent, var(--magenta), transparent);
+    animation: scan 2.5s ease-in-out infinite;
+  }
+  @keyframes scan { 0%,100%{opacity:0.3;width:70px} 50%{opacity:1;width:200px} }
+
+  /* STEPS */
+  .steps-row {
+    display: flex; align-items: center; gap: 0;
+    margin-bottom: 30px; overflow-x: auto; padding-bottom: 4px;
+  }
+  .step-item { display: flex; align-items: center; }
+  .step-circle {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: var(--panel);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 600;
+    color: rgba(160,200,212,0.4);
+    transition: all 0.4s; flex-shrink: 0;
+  }
+  .step-circle.active { border-color: var(--magenta); color: var(--magenta); box-shadow: 0 0 12px rgba(255,0,204,0.4); }
+  .step-circle.done { border-color: var(--green); color: var(--green); box-shadow: 0 0 10px rgba(0,255,136,0.3); }
+  .step-line { flex: 1; height: 1px; background: rgba(255,255,255,0.08); min-width: 20px; max-width: 60px; }
+  .step-line.done { background: var(--green); opacity: 0.5; }
+
+  /* CARDS */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 26px;
+    margin-bottom: 18px;
+    position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--magenta), transparent);
+    opacity: 0.6;
+  }
+  .card-label {
+    font-size: 0.65rem; letter-spacing: 0.3em;
+    color: rgba(255,0,204,0.45); text-transform: uppercase; margin-bottom: 10px;
+  }
+  .card-question {
+    font-size: 1.05rem; color: #d0e8f0; line-height: 1.6; margin-bottom: 16px;
+  }
+
+  textarea {
+    width: 100%; padding: 14px 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; color: #c0dce8;
+    font-family: 'Share Tech Mono', monospace; font-size: 13px;
+    line-height: 1.7; resize: vertical; min-height: 80px; outline: none;
+    transition: border-color 0.3s;
+  }
+  textarea:focus { border-color: var(--magenta); }
+  textarea::placeholder { color: rgba(160,200,212,0.3); }
+
+  .pattern-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 10px;
+  }
+  .pattern-btn {
+    padding: 10px 12px; border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(160,200,212,0.7); font-family: 'Share Tech Mono', monospace;
+    font-size: 12px; cursor: pointer; text-align: left;
+    transition: all 0.2s; line-height: 1.4;
+  }
+  .pattern-btn:hover { border-color: var(--magenta); color: var(--magenta); background: rgba(255,0,204,0.06); }
+  .pattern-btn.selected { border-color: var(--magenta); color: var(--magenta); background: rgba(255,0,204,0.1); box-shadow: 0 0 10px rgba(255,0,204,0.2); }
+  .pattern-name { font-weight: 600; display: block; }
+  .pattern-desc { font-size: 11px; opacity: 0.6; display: block; margin-top: 2px; }
+
+  .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .btn {
+    padding: 12px 24px; border-radius: 8px; cursor: pointer;
+    font-family: 'Orbitron', sans-serif; font-size: 0.72rem;
+    letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: rgba(255,0,204,0.12); border-color: var(--magenta);
+    color: var(--magenta);
+  }
+  .btn-primary:hover { background: rgba(255,0,204,0.22); box-shadow: 0 0 16px rgba(255,0,204,0.3); }
+  .btn-secondary {
+    background: transparent; border-color: rgba(255,255,255,0.15);
+    color: rgba(160,200,212,0.6);
+  }
+  .btn-secondary:hover { border-color: rgba(255,255,255,0.3); color: #d0e0e8; }
+
+  /* RESULT */
+  .result-section { display: none; }
+  .result-section.show { display: block; animation: fadeUp 0.5s ease; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+
+  .pattern-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+    margin-bottom: 14px;
+    background: rgba(255,183,0,0.12); border: 1px solid rgba(255,183,0,0.4); color: var(--amber);
+  }
+  .negative-box {
+    background: rgba(255,0,60,0.06); border: 1px solid rgba(255,0,60,0.2);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 14px;
+    font-size: 13px; color: rgba(255,100,100,0.85); line-height: 1.6;
+  }
+  .negative-box .blabel { font-size: 10px; letter-spacing: 0.25em; color: rgba(255,0,60,0.5); text-transform: uppercase; margin-bottom: 6px; }
+
+  .reframe-box {
+    background: rgba(0,255,136,0.04); border: 1px solid rgba(0,255,136,0.2);
+    border-radius: 10px; padding: 16px 18px; margin-bottom: 14px;
+    line-height: 1.7;
+  }
+  .reframe-box .blabel { font-size: 10px; letter-spacing: 0.25em; color: rgba(0,255,136,0.5); text-transform: uppercase; margin-bottom: 8px; }
+  .reframe-text { font-size: 14px; color: #a0f0c8; }
+
+  .cbt-tip {
+    background: rgba(155,89,255,0.06); border: 1px solid rgba(155,89,255,0.2);
+    border-radius: 10px; padding: 14px 16px;
+    font-size: 12px; color: rgba(180,160,255,0.85); line-height: 1.6;
+  }
+  .cbt-tip .blabel { font-size: 10px; letter-spacing: 0.25em; color: rgba(155,89,255,0.5); text-transform: uppercase; margin-bottom: 6px; }
+
+  /* DIARY */
+  .diary-list { display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; }
+  .diary-item {
+    padding: 12px 14px; border-radius: 8px;
+    background: rgba(255,255,255,0.02); border: 0.5px solid rgba(255,255,255,0.06);
+    cursor: pointer; transition: border-color 0.2s;
+  }
+  .diary-item:hover { border-color: var(--magenta); }
+  .diary-meta { font-size: 10px; color: rgba(160,200,212,0.4); letter-spacing: 0.1em; margin-bottom: 4px; }
+  .diary-thought { font-size: 12px; color: rgba(160,200,212,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .diary-pattern { font-size: 10px; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; background: rgba(255,183,0,0.1); color: var(--amber); }
+  .empty-diary { text-align: center; padding: 24px; font-size: 12px; color: rgba(160,200,212,0.25); letter-spacing: 0.15em; }
+</style>
+</head>
+<body>
+
+  <div style="
+display:flex;
+justify-content:center;
+gap:12px;
+padding:12px;
+background:#0b3d4f;
+border-bottom:2px solid #00d9ff;
+box-shadow:0 0 12px #00d9ff;
+flex-wrap:wrap;
+">
+
+<button onclick="window.open('Mental health awareness home.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Home</button>
+
+<button onclick="window.open('MindEase_Gini_fixed.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Mind MindEase</button>
+
+<button onclick="window.open('mind_index.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">mind index</button>
+
+<button onclick="window.open('stress-thermometer.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Stress Thermometer</button>
+
+<button onclick="window.open('thought-reframe.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Thought Reframe</button>
+
+<button onclick="window.open('micro-break-reminder.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Micro Break</button>
+
+<button onclick="window.open('game_index.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Relaxation Game</button>
+
+   
+</div>
+
+
+<div class="container z">
+  <header>
+    <div class="logo">Thought<span>Reframe</span></div>
+    <div class="tagline">CBT-based cognitive distortion identifier &amp; reframer</div>
+    <div class="scan-line"></div>
+  </header>
+
+  <!-- STEP INDICATOR -->
+  <div class="steps-row">
+    <div class="step-item"><div class="step-circle active" id="s1">01</div></div>
+    <div class="step-line" id="l1"></div>
+    <div class="step-item"><div class="step-circle" id="s2">02</div></div>
+    <div class="step-line" id="l2"></div>
+    <div class="step-item"><div class="step-circle" id="s3">03</div></div>
+    <div class="step-line" id="l3"></div>
+    <div class="step-item"><div class="step-circle" id="s4">04</div></div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="card" id="step1">
+    <div class="card-label">Step 01 — Capture</div>
+    <div class="card-question">What negative thought is bothering you right now?</div>
+    <textarea id="negThought" placeholder="e.g. I failed one exam so I'm a complete failure and will never succeed..."></textarea>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goStep2()">Identify Pattern →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="card" id="step2" style="display:none">
+    <div class="card-label">Step 02 — Pattern</div>
+    <div class="card-question">Which thinking pattern does this resemble?</div>
+    <div class="pattern-grid" id="patternGrid"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep1()">← Back</button>
+      <button class="btn btn-primary" onclick="goStep3()">Generate Reframe →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="card" id="step3" style="display:none">
+    <div class="card-label">Step 03 — Challenge</div>
+    <div class="card-question">What evidence do you have that this thought is 100% true?</div>
+    <textarea id="evidence" placeholder="Be honest — is there actual proof, or is this an assumption?"></textarea>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep2()">← Back</button>
+      <button class="btn btn-primary" onclick="goStep4()">See Reframe →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4 — RESULT -->
+  <div class="card result-section" id="step4">
+    <div class="card-label">Step 04 — Reframe</div>
+    <div id="patternBadge"></div>
+    <div class="negative-box">
+      <div class="blabel">Original thought</div>
+      <div id="origText"></div>
+    </div>
+    <div class="reframe-box">
+      <div class="blabel">Reframed thought</div>
+      <div class="reframe-text" id="reframeText"></div>
+    </div>
+    <div class="cbt-tip">
+      <div class="blabel">CBT technique</div>
+      <div id="cbtTipText"></div>
+    </div>
+    <div class="btn-row" style="margin-top:18px">
+      <button class="btn btn-primary" onclick="saveEntry()">Save to Diary</button>
+      <button class="btn btn-secondary" onclick="resetAll()">Start Over</button>
+    </div>
+    <div id="saveMsg" style="font-size:11px;color:#00ff88;margin-top:8px;letter-spacing:0.1em;height:16px;"></div>
+  </div>
+
+  <!-- DIARY -->
+  <div class="card">
+    <div class="card-label">Thought Diary</div>
+    <div class="diary-list" id="diaryList"></div>
+  </div>
+</div>
+
+<script>
+const patterns = [
+  { name: 'All-or-Nothing', desc: 'Black & white thinking', reframe: 'One setback does not define the entire outcome. Progress exists on a spectrum — partial success still counts.', tip: 'Try to find the grey area. Ask: "Is there any middle ground here?"' },
+  { name: 'Catastrophizing', desc: 'Assuming the worst', reframe: 'The most extreme outcome is rarely the most likely one. What is the realistic outcome if you take it step by step?', tip: 'Use the "Best/Worst/Most Likely" technique — write all three outcomes.' },
+  { name: 'Mind Reading', desc: 'Assuming others\' thoughts', reframe: 'You cannot know what others are thinking. Their behaviour may have many explanations unrelated to you.', tip: 'Ask yourself: "Do I have actual evidence for this assumption?"' },
+  { name: 'Overgeneralizing', desc: 'One event = always', reframe: 'One event, no matter how difficult, does not predict all future events. Each situation is unique.', tip: 'Notice words like "always", "never", "everyone" — these are overgeneralization signals.' },
+  { name: 'Emotional Reasoning', desc: 'Feelings = facts', reframe: 'Feeling something strongly does not make it true. Emotions are signals, not evidence.', tip: 'Write the feeling, then write the actual fact separately. Are they the same?' },
+  { name: 'Should Statements', desc: 'Rigid self-rules', reframe: 'Replace "I should" with "I would prefer to" or "It would be helpful if". This softens self-criticism.', tip: 'Ask: "Who set this rule? Is it realistic and kind?"' },
+  { name: 'Personalization', desc: 'Blaming yourself', reframe: 'Many situations have multiple contributing factors. You are not always the primary cause of negative events.', tip: 'List all possible factors that contributed — you are likely just one of them.' },
+  { name: 'Mental Filter', desc: 'Focusing only on negatives', reframe: 'There are likely positive aspects you are filtering out. Force yourself to name three things that went well.', tip: 'Keep a "3 Good Things" journal for one week.' }
+];
+
+let selectedPattern = null;
+let diary = JSON.parse(localStorage.getItem('thoughtDiary') || '[]');
+
+function buildPatterns() {
+  const grid = document.getElementById('patternGrid');
+  grid.innerHTML = '';
+  patterns.forEach((p, i) => {
+    const b = document.createElement('button');
+    b.className = 'pattern-btn' + (selectedPattern === i ? ' selected' : '');
+    b.innerHTML = `<span class="pattern-name">${p.name}</span><span class="pattern-desc">${p.desc}</span>`;
+    b.onclick = () => {
+      selectedPattern = i;
+      buildPatterns();
+    };
+    grid.appendChild(b);
+  });
+}
+
+function setStep(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('s'+i).className = 'step-circle' + (i < n ? ' done' : i === n ? ' active' : '');
+    if (i < 4) document.getElementById('l'+i).className = 'step-line' + (i < n ? ' done' : '');
+    if (i <= 3) document.getElementById('step'+i).style.display = i === n ? 'block' : 'none';
+  });
+  if (n === 4) {
+    const res = document.getElementById('step4');
+    res.classList.add('show'); res.style.display = 'block';
+  } else {
+    document.getElementById('step4').style.display = 'none';
+  }
+}
+
+function goStep2() {
+  const t = document.getElementById('negThought').value.trim();
+  if (!t) { document.getElementById('negThought').focus(); return; }
+  buildPatterns();
+  setStep(2);
+}
+function goStep1() { setStep(1); }
+function goStep3() {
+  if (selectedPattern === null) { return; }
+  setStep(3);
+}
+function goStep4() {
+  const p = patterns[selectedPattern];
+  document.getElementById('origText').textContent = document.getElementById('negThought').value;
+  document.getElementById('patternBadge').innerHTML = `<div class="pattern-badge">⚠ ${p.name}</div>`;
+  document.getElementById('reframeText').textContent = p.reframe;
+  document.getElementById('cbtTipText').textContent = p.tip;
+  setStep(4);
+}
+
+function saveEntry() {
+  diary.unshift({
+    thought: document.getElementById('negThought').value,
+    pattern: patterns[selectedPattern].name,
+    reframe: patterns[selectedPattern].reframe,
+    time: Date.now()
+  });
+  if (diary.length > 20) diary.pop();
+  localStorage.setItem('thoughtDiary', JSON.stringify(diary));
+  renderDiary();
+  const msg = document.getElementById('saveMsg');
+  msg.textContent = '✓ Saved to diary';
+  setTimeout(() => msg.textContent = '', 2500);
+}
+
+function renderDiary() {
+  const list = document.getElementById('diaryList');
+  if (!diary.length) {
+    list.innerHTML = '<div class="empty-diary">No entries yet — start reframing</div>';
+    return;
+  }
+  list.innerHTML = '';
+  diary.forEach(e => {
+    const d = document.createElement('div');
+    d.className = 'diary-item';
+    const t = new Date(e.time).toLocaleDateString('en-IN', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+    d.innerHTML = `<div class="diary-meta">${t}</div><div class="diary-thought">${e.thought}</div><span class="diary-pattern">${e.pattern}</span>`;
+    list.appendChild(d);
+  });
+}
+
+function resetAll() {
+  document.getElementById('negThought').value = '';
+  document.getElementById('evidence').value = '';
+  selectedPattern = null;
+  setStep(1);
+}
+
+setStep(1);
+renderDiary();
+</script>
+</body>
+</html>

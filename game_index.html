@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neuro Core — Brain Training</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan: #00f5ff;
+      --magenta: #ff00aa;
+      --green: #39ff14;
+      --dark: #050a0f;
+      --panel: rgba(0,245,255,0.04);
+      --border: rgba(0,245,255,0.18);
+      --glow-c: 0 0 12px rgba(0,245,255,0.6), 0 0 40px rgba(0,245,255,0.15);
+      --glow-m: 0 0 12px rgba(255,0,170,0.6), 0 0 40px rgba(255,0,170,0.15);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Share Tech Mono', monospace;
+      background: var(--dark);
+      color: #a0d4e0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,245,255,0.07) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    header {
+      position: relative; z-index: 10;
+      text-align: center; padding: 48px 20px 20px;
+    }
+    .logo-line {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: clamp(2rem, 6vw, 4rem);
+      letter-spacing: 0.15em;
+      color: var(--cyan);
+      text-shadow: var(--glow-c);
+    }
+    .logo-line span { color: var(--magenta); text-shadow: var(--glow-m); }
+    .tagline {
+      font-size: 0.78rem; letter-spacing: 0.3em;
+      color: rgba(0,245,255,0.45); margin-top: 6px; text-transform: uppercase;
+    }
+    .scan-bar {
+      width: 200px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      margin: 18px auto 0;
+      animation: scanPulse 3s ease-in-out infinite;
+    }
+    @keyframes scanPulse {
+      0%,100% { opacity: 0.3; width: 100px; }
+      50% { opacity: 1; width: 260px; }
+    }
+
+    #scoreBar {
+      position: relative; z-index: 10;
+      display: flex; justify-content: center;
+      padding: 14px 20px; margin: 10px auto; max-width: 600px;
+    }
+    .score-block {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 4px; padding: 8px 32px;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .score-block::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    }
+    .score-label { font-size: 0.6rem; letter-spacing: 0.3em; color: rgba(0,245,255,0.4); text-transform: uppercase; }
+    .score-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.6rem; font-weight: 600;
+      color: var(--cyan); text-shadow: var(--glow-c);
+    }
+
+    #menuArea {
+      position: relative; z-index: 10;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px; max-width: 860px;
+      margin: 30px auto; padding: 0 20px;
+    }
+    .game-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 32px 24px;
+      cursor: pointer; position: relative; overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s; text-align: left;
+    }
+    .game-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--cyan); box-shadow: var(--glow-c);
+    }
+    .game-card::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(0,245,255,0.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .card-icon { font-size: 2.4rem; margin-bottom: 14px; display: block; }
+    .card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem; font-weight: 600;
+      color: var(--cyan); letter-spacing: 0.1em; margin-bottom: 8px;
+    }
+    .card-desc { font-size: 0.76rem; color: rgba(160,212,224,0.6); line-height: 1.6; }
+    .card-badge {
+      position: absolute; top: 12px; right: 12px;
+      background: rgba(0,245,255,0.1);
+      border: 1px solid rgba(0,245,255,0.25);
+      border-radius: 2px; font-size: 0.6rem;
+      letter-spacing: 0.2em; color: rgba(0,245,255,0.6); padding: 2px 8px;
+    }
+
+    #gamePanel {
+      display: none; position: relative; z-index: 10;
+      max-width: 720px; margin: 0 auto; padding: 0 20px 40px;
+    }
+    .game-header {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 24px; padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .back-btn {
+      background: transparent;
+      border: 1px solid rgba(0,245,255,0.3); color: var(--cyan);
+      font-family: 'Share Tech Mono', monospace; font-size: 0.75rem;
+      padding: 6px 14px; cursor: pointer; letter-spacing: 0.15em;
+      transition: all 0.2s; border-radius: 3px;
+    }
+    .back-btn:hover { background: rgba(0,245,255,0.1); box-shadow: var(--glow-c); }
+    .game-title-display {
+      font-family: 'Orbitron', sans-serif; font-size: 1.1rem;
+      color: var(--cyan); text-shadow: var(--glow-c); letter-spacing: 0.1em;
+    }
+    #gameArea {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 28px;
+      min-height: 320px; position: relative; overflow: hidden;
+    }
+    #gameArea::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), var(--magenta), transparent);
+    }
+
+    .level-bar {
+      font-size: 0.72rem; letter-spacing: 0.25em;
+      color: rgba(0,245,255,0.55); margin-bottom: 20px; text-transform: uppercase;
+    }
+    .thought-text {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.4rem; font-weight: 600; color: #fff;
+      text-align: center; padding: 28px 10px;
+      text-shadow: 0 0 20px rgba(255,255,255,0.3);
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: none; } }
+    .sub-label {
+      font-size: 0.7rem; letter-spacing: 0.25em;
+      color: rgba(0,245,255,0.35); text-align: center; margin-top: 6px;
+    }
+    .action-row {
+      display: flex; justify-content: center;
+      gap: 16px; margin-top: 24px; flex-wrap: wrap;
+    }
+    .btn-important {
+      background: linear-gradient(135deg, rgba(57,255,20,0.15), rgba(57,255,20,0.05));
+      border: 1px solid rgba(57,255,20,0.5); color: var(--green);
+      font-family: 'Orbitron', sans-serif; font-size: 0.78rem;
+      letter-spacing: 0.12em; padding: 12px 28px; cursor: pointer;
+      border-radius: 4px; transition: all 0.2s;
+    }
+    .btn-important:hover { background: rgba(57,255,20,0.2); box-shadow: 0 0 16px rgba(57,255,20,0.4); }
+    .btn-ignore {
+      background: linear-gradient(135deg, rgba(255,0,170,0.15), rgba(255,0,170,0.05));
+      border: 1px solid rgba(255,0,170,0.5); color: var(--magenta);
+      font-family: 'Orbitron', sans-serif; font-size: 0.78rem;
+      letter-spacing: 0.12em; padding: 12px 28px; cursor: pointer;
+      border-radius: 4px; transition: all 0.2s;
+    }
+    .btn-ignore:hover { background: rgba(255,0,170,0.2); box-shadow: var(--glow-m); }
+
+    .grid-container {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 10px; max-width: 340px; margin: 20px auto;
+    }
+    .grid-cell {
+      aspect-ratio: 1; border-radius: 6px;
+      background: rgba(0,245,255,0.06);
+      border: 1px solid rgba(0,245,255,0.15);
+      cursor: pointer; transition: background 0.15s, box-shadow 0.15s;
+    }
+    .grid-cell:hover { background: rgba(0,245,255,0.12); }
+    .grid-cell.lit { background: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 20px rgba(0,245,255,0.7); }
+    .grid-cell.correct { background: rgba(57,255,20,0.3); border-color: var(--green); box-shadow: 0 0 14px rgba(57,255,20,0.5); }
+    .grid-cell.wrong { background: rgba(255,0,170,0.3); border-color: var(--magenta); box-shadow: var(--glow-m); }
+    .lives-display { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+    .life-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--cyan); box-shadow: var(--glow-c); transition: all 0.3s;
+    }
+    .life-dot.lost { background: rgba(255,0,170,0.25); border: 1px solid rgba(255,0,170,0.4); box-shadow: none; }
+
+    #tunnelContainer {
+      position: relative; width: 380px; height: 380px;
+      margin: 16px auto;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+    }
+    .tunnel-ball {
+      width: 28px; height: 28px; border-radius: 50%;
+      position: absolute;
+      background: rgba(0,245,255,0.35); border: 1px solid rgba(0,245,255,0.5);
+      cursor: pointer; transition: box-shadow 0.2s;
+    }
+    .tunnel-ball.target-reveal { background: var(--magenta); border-color: var(--magenta); box-shadow: var(--glow-m); }
+    .tunnel-ball:hover { box-shadow: 0 0 12px rgba(0,245,255,0.6); }
+
+    .status-msg {
+      font-size: 0.8rem; letter-spacing: 0.2em;
+      text-align: center; padding: 10px;
+      color: rgba(0,245,255,0.6); text-transform: uppercase;
+    }
+
+    .feedback-flash {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem; font-weight: 900;
+      pointer-events: none; z-index: 999;
+      animation: flashOut 0.6s ease forwards;
+    }
+    .flash-good { color: var(--green); text-shadow: 0 0 20px var(--green); }
+    .flash-bad  { color: var(--magenta); text-shadow: var(--glow-m); }
+    @keyframes flashOut {
+      0%   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -60%) scale(1.3); }
+    }
+
+    .overlay {
+      position: absolute; inset: 0;
+      background: rgba(5,10,15,0.92);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      border-radius: 8px; z-index: 20; gap: 16px;
+    }
+    .overlay h2 {
+      font-family: 'Orbitron', sans-serif; font-size: 1.6rem;
+      color: var(--cyan); text-shadow: var(--glow-c); letter-spacing: 0.12em;
+    }
+    .overlay p { font-size: 0.85rem; color: rgba(160,212,224,0.6); }
+    .btn-restart {
+      background: linear-gradient(135deg, rgba(0,245,255,0.15), rgba(0,245,255,0.05));
+      border: 1px solid var(--cyan); color: var(--cyan);
+      font-family: 'Orbitron', sans-serif; font-size: 0.8rem;
+      letter-spacing: 0.12em; padding: 12px 32px; cursor: pointer;
+      border-radius: 4px; transition: all 0.2s;
+    }
+    .btn-restart:hover { background: rgba(0,245,255,0.2); box-shadow: var(--glow-c); }
+
+    @media (max-width: 480px) {
+      #tunnelContainer { width: 300px; height: 300px; }
+      .grid-container { max-width: 280px; }
+    }
+  </style>
+</head>
+<body>
+ <div style="
+display:flex;
+justify-content:center;
+gap:12px;
+padding:12px;
+background:#0b3d4f;
+border-bottom:2px solid #00d9ff;
+box-shadow:0 0 12px #00d9ff;
+flex-wrap:wrap;
+">
+
+<button onclick="window.open('Mental health awareness home.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Home</button>
+
+<button onclick="window.open('mind_index.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">mind index</button>
+
+<button onclick="window.open('mind_index.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">MindEase Gini</button>
+
+<button onclick="window.open('stress-thermometer.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Stress Thermometer</button>
+
+<button onclick="window.open('thought-reframe.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Thought Reframe</button>
+
+<button onclick="window.open('micro-break-reminder.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Micro Break</button>
+
+<button onclick="window.open('game_index.html','_self')" style="
+padding:8px 14px;
+border-radius:10px;
+border:1px solid #66e6ff;
+background:#083042;
+color:white;
+cursor:pointer;
+box-shadow:0 0 8px #00d9ff;
+">Relaxation Game</button>
+
+   
+</div>
+<header>
+  <div class="logo-line">NEURO<span>CORE</span></div>
+  <div class="tagline">Advanced Cognitive Training System</div>
+  <div class="scan-bar"></div>
+</header>
+
+<div id="scoreBar">
+  <div class="score-block">
+    <div class="score-label">NeuroScore</div>
+    <div class="score-value" id="scoreVal">0</div>
+  </div>
+</div>
+
+<div id="menuArea">
+  <div class="game-card" onclick="openGame('control')">
+    <div class="card-badge">COGNITIVE</div>
+    <span class="card-icon">🧠</span>
+    <div class="card-title">Control Arena</div>
+    <div class="card-desc">Filter important thoughts from mental noise. Train cognitive control and present-moment awareness.</div>
+  </div>
+  <div class="game-card" onclick="openGame('memory')">
+    <div class="card-badge">MEMORY</div>
+    <span class="card-icon">⚡</span>
+    <div class="card-title">Memory Grid</div>
+    <div class="card-desc">Remember and reproduce sequences on a neural grid. Builds working memory and sequential recall.</div>
+  </div>
+  <div class="game-card" onclick="openGame('tunnel')">
+    <div class="card-badge">FOCUS</div>
+    <span class="card-icon">🎯</span>
+    <div class="card-title">Focus Tunnel</div>
+    <div class="card-desc">Track a target ball through chaos. Sharpens selective attention and visual tracking ability.</div>
+  </div>
+</div>
+
+<div id="gamePanel">
+  <div class="game-header">
+    <button class="back-btn" onclick="showMenu()">← BACK</button>
+    <div class="game-title-display" id="gameTitleDisplay"></div>
+  </div>
+  <div id="gameArea"></div>
+</div>
+
+<script>
+let totalScore = 0;
+let gameTimer;
+let activeGame = null;
+
+function updateScore(pts) {
+  totalScore += pts;
+  document.getElementById('scoreVal').textContent = totalScore;
+  const f = document.createElement('div');
+  f.className = 'feedback-flash ' + (pts > 0 ? 'flash-good' : 'flash-bad');
+  f.textContent = (pts > 0 ? '+' : '') + pts;
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 650);
+}
+
+function openGame(name) {
+  activeGame = name;
+  document.getElementById('menuArea').style.display = 'none';
+  document.getElementById('gamePanel').style.display = 'block';
+  const titles = { control: 'CONTROL ARENA', memory: 'MEMORY GRID', tunnel: 'FOCUS TUNNEL' };
+  document.getElementById('gameTitleDisplay').textContent = titles[name];
+  if (name === 'control') startControlArena();
+  if (name === 'memory') startMemoryGrid();
+  if (name === 'tunnel') startFocusTunnel();
+}
+
+function showMenu() {
+  clearInterval(gameTimer);
+  clearInterval(tunnelMoveInterval);
+  activeGame = null;
+  document.getElementById('menuArea').style.display = 'grid';
+  document.getElementById('gamePanel').style.display = 'none';
+  document.getElementById('gameArea').innerHTML = '';
+}
+
+// ── Control Arena ─────────────────────────────────────
+const thoughts = [
+  { text: "Kal kya hoga?", important: false },
+  { text: "Slow breathing karo", important: true },
+  { text: "Usne reply kyun nahi kiya?", important: false },
+  { text: "Abhi present me ho", important: true },
+  { text: "Log kya sochenge?", important: false },
+  { text: "Body relax karo", important: true },
+  { text: "Kaam pending hai...", important: false },
+  { text: "Is pal ko feel karo", important: true },
+];
+let filterTime = 50;
+
+function startControlArena() {
+  clearInterval(gameTimer);
+  filterTime = 50;
+  renderNextThought();
+  gameTimer = setInterval(() => {
+    filterTime--;
+    const el = document.getElementById('caTimer');
+    if (el) el.textContent = 'TIME: ' + filterTime;
+    if (filterTime <= 0) {
+      clearInterval(gameTimer);
+      showEndOverlay('SESSION COMPLETE', 'Filter session successfully completed.');
+    }
+  }, 1000);
+}
+
+function renderNextThought() {
+  const thought = thoughts[Math.floor(Math.random() * thoughts.length)];
+  const ga = document.getElementById('gameArea');
+  ga.innerHTML = `
+    <div class="level-bar" id="caTimer">TIME: ${filterTime}</div>
+    <div class="thought-text">${thought.text}</div>
+    <div class="sub-label">— CLASSIFY THIS THOUGHT —</div>
+    <div class="action-row">
+      <button class="btn-important" id="impBtn">⬆ IMPORTANT</button>
+      <button class="btn-ignore" id="ignBtn">✕ IGNORE</button>
+    </div>
+  `;
+  document.getElementById('impBtn').onclick = () => {
+    thought.important ? updateScore(8) : updateScore(-5);
+    if (filterTime > 0) renderNextThought();
+  };
+  document.getElementById('ignBtn').onclick = () => {
+    !thought.important ? updateScore(5) : updateScore(-4);
+    if (filterTime > 0) renderNextThought();
+  };
+}
+
+// ── Memory Grid ───────────────────────────────────────
+let gridPattern = [], userInput = [], gridLevel = 1, gridLives = 3, accepting = false;
+
+function startMemoryGrid() {
+  clearInterval(gameTimer);
+  gridPattern = []; userInput = []; gridLevel = 1; gridLives = 3;
+  nextGridRound();
+}
+
+function nextGridRound() {
+  accepting = false; userInput = [];
+  gridPattern.push(Math.floor(Math.random() * 16));
+  renderGrid();
+  setTimeout(showPattern, 400);
+}
+
+function renderGrid() {
+  const ga = document.getElementById('gameArea');
+  const livesHtml = Array.from({length:3}, (_,i) =>
+    `<div class="life-dot ${i >= gridLives ? 'lost' : ''}"></div>`).join('');
+  ga.innerHTML = `
+    <div class="level-bar">LEVEL ${gridLevel} &nbsp;|&nbsp; SEQ: ${gridPattern.length}</div>
+    <div class="lives-display">${livesHtml}</div>
+    <div class="grid-container" id="theGrid"></div>
+    <div class="status-msg" id="gridStatus">WATCH THE SEQUENCE...</div>
+  `;
+  const grid = document.getElementById('theGrid');
+  for (let i = 0; i < 16; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'grid-cell';
+    cell.dataset.index = i;
+    cell.onclick = () => { if (accepting) handleGridClick(i, cell); };
+    grid.appendChild(cell);
+  }
+}
+
+function showPattern() {
+  const cells = document.querySelectorAll('.grid-cell');
+  let i = 0;
+  const speed = Math.max(200, 600 - gridLevel * 20);
+  const iv = setInterval(() => {
+    if (i >= gridPattern.length) { clearInterval(iv); setTimeout(enableInput, 400); return; }
+    const c = cells[gridPattern[i]];
+    c.classList.add('lit');
+    setTimeout(() => c.classList.remove('lit'), 350);
+    i++;
+  }, speed);
+}
+
+function enableInput() {
+  accepting = true;
+  const s = document.getElementById('gridStatus');
+  if (s) s.textContent = 'NOW REPEAT THE SEQUENCE';
+}
+
+function handleGridClick(index, cell) {
+  const expected = gridPattern[userInput.length];
+  userInput.push(index);
+  if (index !== expected) {
+    cell.classList.add('wrong');
+    setTimeout(() => cell.classList.remove('wrong'), 300);
+    gridLives--;
+    updateScore(-5);
+    if (gridLives <= 0) {
+      accepting = false;
+      showEndOverlay('NEURAL OVERLOAD', `Reached Level ${gridLevel}. Score: ${totalScore}`);
+      return;
+    }
+    userInput = [];
+    const s = document.getElementById('gridStatus');
+    if (s) s.textContent = `WRONG! LIVES: ${gridLives} — WATCH AGAIN`;
+    document.querySelectorAll('.life-dot').forEach((d,i) => { if (i >= gridLives) d.classList.add('lost'); });
+    setTimeout(showPattern, 700);
+    return;
+  }
+  cell.classList.add('correct');
+  setTimeout(() => cell.classList.remove('correct'), 300);
+  if (userInput.length === gridPattern.length) {
+    accepting = false;
+    updateScore(15);
+    gridLevel++;
+    const s = document.getElementById('gridStatus');
+    if (s) s.textContent = 'CORRECT! ADVANCING...';
+    setTimeout(nextGridRound, 900);
+  }
+}
+
+// ── Focus Tunnel ──────────────────────────────────────
+let tunnelTarget, tunnelSpeed = 1, tunnelLevel = 1, tunnelBalls = [];
+let tunnelMoveInterval;
+
+function startFocusTunnel() {
+  clearInterval(tunnelMoveInterval);
+  clearInterval(gameTimer);
+  tunnelSpeed = 1; tunnelLevel = 1;
+  runTunnel();
+}
+
+function runTunnel() {
+  clearInterval(tunnelMoveInterval);
+  tunnelBalls = [];
+  const ga = document.getElementById('gameArea');
+  ga.innerHTML = `
+    <div class="level-bar">LEVEL ${tunnelLevel} &nbsp;|&nbsp; SPEED ${tunnelSpeed.toFixed(1)}x</div>
+    <div class="status-msg" id="tunnelStatus">MEMORISE THE RED BALL...</div>
+    <div id="tunnelContainer"></div>
+  `;
+  const container = document.getElementById('tunnelContainer');
+  const W = container.offsetWidth || 380, H = container.offsetHeight || 380;
+  for (let i = 0; i < 12; i++) {
+    const ball = document.createElement('div');
+    ball.className = 'tunnel-ball';
+    ball.bx = Math.random() * (W - 30);
+    ball.by = Math.random() * (H - 30);
+    ball.dx = (Math.random() - 0.5) * tunnelSpeed * 3 || 0.5;
+    ball.dy = (Math.random() - 0.5) * tunnelSpeed * 3 || 0.5;
+    ball.style.left = ball.bx + 'px';
+    ball.style.top = ball.by + 'px';
+    container.appendChild(ball);
+    tunnelBalls.push(ball);
+  }
+  tunnelTarget = tunnelBalls[Math.floor(Math.random() * tunnelBalls.length)];
+  tunnelTarget.classList.add('target-reveal');
+  setTimeout(() => {
+    tunnelTarget.classList.remove('target-reveal');
+    const s = document.getElementById('tunnelStatus');
+    if (s) s.textContent = 'FIND THE TARGET — CLICK IT!';
+    moveBalls(W, H);
+    setTimeout(() => {
+      clearInterval(tunnelMoveInterval);
+      enableTunnelClick();
+      const s2 = document.getElementById('tunnelStatus');
+      if (s2) s2.textContent = 'CLICK NOW!';
+    }, 5000 + tunnelLevel * 400);
+  }, 2000);
+}
+
+function moveBalls(W, H) {
+  tunnelMoveInterval = setInterval(() => {
+    tunnelBalls.forEach(b => {
+      b.bx += b.dx; b.by += b.dy;
+      if (b.bx <= 0 || b.bx >= W - 30) b.dx *= -1;
+      if (b.by <= 0 || b.by >= H - 30) b.dy *= -1;
+      b.style.left = b.bx + 'px'; b.style.top = b.by + 'px';
+    });
+  }, 16);
+}
+
+function enableTunnelClick() {
+  tunnelBalls.forEach(b => {
+    b.onclick = () => {
+      if (b === tunnelTarget) {
+        updateScore(20); tunnelLevel++;
+        tunnelSpeed = Math.min(tunnelSpeed + 0.4, 4);
+        b.classList.add('target-reveal');
+        setTimeout(runTunnel, 500);
+      } else {
+        updateScore(-10);
+        tunnelTarget.classList.add('target-reveal');
+        setTimeout(() => showEndOverlay('FOCUS LOST', `Reached Level ${tunnelLevel}. Score: ${totalScore}`), 800);
+      }
+    };
+  });
+}
+
+function showEndOverlay(title, msg) {
+  clearInterval(gameTimer);
+  clearInterval(tunnelMoveInterval);
+  const ga = document.getElementById('gameArea');
+  const ov = document.createElement('div');
+  ov.className = 'overlay';
+  ov.innerHTML = `
+    <h2>${title}</h2>
+    <p>${msg}</p>
+    <button class="btn-restart" onclick="this.closest('.overlay').remove(); openGame(activeGame)">↺ RETRY</button>
+    <button class="btn-restart" style="background:transparent;border-color:rgba(0,245,255,0.3)" onclick="showMenu()">← MENU</button>
+  `;
+  ga.appendChild(ov);
+}
+</script>
+</body>
+</html>
