@@ -7,9 +7,9 @@
 
 Add your deployed project link after hosting:
 
-**Live Demo:** https://rajat-bhardwaj2003.github.io
+**Live Demo:** https://rajat-bhardwaj2003.github.io/MindEase/
 
-**GitHub Repository:** https://github.com/RAJAT-BHARDWAJ2003
+**GitHub Repository:** https://github.com/RAJAT-BHARDWAJ2003/MindEase
 
 
 ## 🌟 Overview
@@ -100,7 +100,7 @@ Features include:
 MindEase/
 │
 ├── game_index.html
-├── mental health awareness home.html
+├── index.html
 ├── micro-break.html
 ├── midease_gini_fixed.html
 ├── stress_thermometer.html
@@ -162,25 +162,31 @@ MindEase/
 
 ## 📸 Screenshots
 
-Add screenshots here after completing the project.
+**Home Page**
 
-```
-Home Page
+<img width="1920" height="1080" alt="home" src="https://github.com/user-attachments/assets/9cc5c11c-8a5c-4127-8bef-c94600239cdf" />
 
-Assessment Test
+**Assessment Test**
 
-Emotion Detection
+<img width="1920" height="1080" alt="test" src="https://github.com/user-attachments/assets/d7200a32-ad3a-4394-84ad-5943f308b5b8" />
 
-AI Chatbot
 
-Stress Thermometer
+**Emotion Detection**
+<img width="1920" height="1080" alt="emotion detection" src="https://github.com/user-attachments/assets/dee8a8a2-8ed0-4eb4-939e-9503addc2d09" />
 
-Brain Games
 
-Thought Reframe
-```
+**AI Chatbot**
+<img width="1920" height="1080" alt="ai chatbot" src="https://github.com/user-attachments/assets/64977b37-aff8-4bf1-94ea-acb406d48fe1" />
 
----
+**Stress Thermometer**
+<img width="1920" height="1080" alt="Stress" src="https://github.com/user-attachments/assets/a3b13dce-7509-439b-ae8d-895d88413f53" />
+
+
+**Brain Games**
+<img width="1920" height="1080" alt="games" src="https://github.com/user-attachments/assets/bb2d4dd3-d2fe-41a6-a26e-1eb65a78ca51" />
+<img width="1920" height="1080" alt="games" src="https://github.com/user-attachments/assets/83db9cfe-f9b5-403b-aa44-b325f29130ee" />
+
+
 
 ## 💡 Why MindEase?
 
@@ -196,11 +202,11 @@ MindEase is an educational and awareness-focused project created for learning an
 
 ## Author
 
-Rajat Bhardwaj
+**Rajat Bhardwaj**
 
-GitHub: your-link
+GitHub: https://github.com/RAJAT-BHARDWAJ2003
 LinkedIn: your-link
 
 ## License
 
-This project is open-source and available under the MIT License.
+This project is open-source and available under the MIT License(LICENSE)
