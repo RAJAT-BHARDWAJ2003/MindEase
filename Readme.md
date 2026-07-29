@@ -205,7 +205,7 @@ MindEase is an educational and awareness-focused project created for learning an
 **Rajat Bhardwaj**
 
 GitHub: https://github.com/RAJAT-BHARDWAJ2003
-LinkedIn: your-link
+LinkedIn: linkedin.com/in/rajat-bhardwaj2003
 
 ## License
 
